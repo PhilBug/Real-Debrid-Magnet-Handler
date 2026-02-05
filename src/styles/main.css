@@ -8,3 +8,8 @@
   --color-warning: oklch(0.7 0.15 85);
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
+
+body {
+  width: 400px;
+  min-height: 400px;
+}

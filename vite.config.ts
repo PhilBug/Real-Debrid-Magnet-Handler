@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import webExtension from "@samrum/vite-plugin-web-extension";
 
 export default defineConfig({
+  base: '',
   plugins: [
     tailwindcss(),
     webExtension({

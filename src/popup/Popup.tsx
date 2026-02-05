@@ -1,50 +1,41 @@
-import React, { useState, useEffect, useSyncExternalStore } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import type { TorrentItem } from '../utils/types'
 import '../styles/main.css'
 
-// Storage cache for useSyncExternalStore
-const storageCache: Record<string, any> = {}
-
-// Initialize cache
-;(async () => {
-  const data = await browser.storage.local.get(null)
-  Object.assign(storageCache, data)
-})()
-
-// Subscribe to storage changes
-const subscribe = (callback: () => void) => {
-  const listener = (changes: { [key: string]: { newValue?: unknown } }, _areaName: string) => {
-    for (const [key, { newValue }] of Object.entries(changes)) {
-      storageCache[key] = newValue
-    }
-    callback()
-  }
-  browser.storage.onChanged.addListener(listener)
-  return () => {
-    browser.storage.onChanged.removeListener(listener)
-  }
-}
-
-// Get snapshot from cache
-const getSnapshot = () => {
-  return (storageCache.torrents as TorrentItem[]) || []
-}
-
 function Popup() {
   const [magnetLink, setMagnetLink] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [hasToken, setHasToken] = useState(true)
-
-  // Subscribe to torrent list changes
-  const torrents = useSyncExternalStore(subscribe, getSnapshot)
+  const [torrents, setTorrents] = useState<TorrentItem[]>([])
 
   useEffect(() => {
     checkToken()
+    loadTorrents()
+
+    // Subscribe to torrent list changes
+    const listener = (changes: { [key: string]: { newValue?: unknown } }, areaName: string) => {
+      if (areaName === 'local' && changes.torrents) {
+        setTorrents((changes.torrents.newValue as TorrentItem[]) || [])
+      }
+    }
+    browser.storage.onChanged.addListener(listener)
+    return () => {
+      browser.storage.onChanged.removeListener(listener)
+    }
   }, [])
+
+  const loadTorrents = async () => {
+    try {
+      const data = await browser.storage.local.get('torrents')
+      setTorrents((data.torrents as TorrentItem[]) || [])
+    } catch (e) {
+      console.error('Failed to load torrents', e)
+    }
+  }
 
   const checkToken = async () => {
     const settings = await storage.getSettings()
