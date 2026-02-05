@@ -68,6 +68,16 @@ User can remove completed/failed torrents from the list and view up to configure
 
 ## Requirements
 
+### Testing Requirements (New)
+
+- **TR-001**: All utility functions MUST have unit tests with >80% code coverage
+- **TR-002**: API client MUST have integration tests with mocked responses
+- **TR-003**: React components MUST have tests for user interactions and state changes
+- **TR-004**: Tests MUST run in CI/CD pipeline before merge
+- **TR-005**: Linter (ESLint) MUST pass with zero errors
+- **TR-006**: Formatter (Prettier) MUST apply consistent code style
+- **TR-007**: TypeScript MUST compile with strict mode (no any types)
+
 ### Functional Requirements
 
 - **FR-001**: Extension MUST accept Real-Debrid API token via settings page
@@ -103,3 +113,6 @@ User can remove completed/failed torrents from the list and view up to configure
 - **SC-005**: Extension passes Firefox AMO review guidelines (no unsafe eval, MV3 compliant)
 - **SC-006**: All API errors (401, 503, 400) display user-friendly messages
 - **SC-007**: List FIFO cleanup works correctly when max size exceeded
+- **SC-008**: Unit test coverage >80% for utility functions
+- **SC-009**: All tests pass locally and in CI
+- **SC-010**: ESLint passes with zero errors

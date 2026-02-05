@@ -1,52 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import { storage } from '../utils/storage';
-import { rdAPI } from '../utils/realdebrid-api';
-import '../styles/main.css';
+import React, { useState, useEffect } from 'react'
+import { createRoot } from 'react-dom/client'
+import { storage } from '../utils/storage'
+import { rdAPI } from '../utils/realdebrid-api'
+import '../styles/main.css'
 
 function Options() {
-  const [apiToken, setApiToken] = useState('');
-  const [maxListSize, setMaxListSize] = useState(10);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [apiToken, setApiToken] = useState('')
+  const [maxListSize, setMaxListSize] = useState(10)
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
-    loadSettings();
-  }, []);
+    loadSettings()
+  }, [])
 
   const loadSettings = async () => {
-    const settings = await storage.getSettings();
-    setApiToken(settings.apiToken || '');
-    setMaxListSize(settings.maxListSize);
-  };
+    const settings = await storage.getSettings()
+    setApiToken(settings.apiToken || '')
+    setMaxListSize(settings.maxListSize)
+  }
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setMessage('');
+    e.preventDefault()
+    setSaving(true)
+    setMessage('')
 
     try {
       // Test API token
-      const isValid = await rdAPI.validateToken(apiToken);
+      const isValid = await rdAPI.validateToken(apiToken)
 
       if (!isValid) {
-        setMessage('Error: Invalid API token. Please check and try again.');
-        return;
+        setMessage('Error: Invalid API token. Please check and try again.')
+        return
       }
 
       // Save settings
       await storage.saveSettings({
         apiToken,
-        maxListSize
-      });
+        maxListSize,
+      })
 
-      setMessage('Settings saved successfully!');
+      setMessage('Settings saved successfully!')
     } catch (error) {
-      setMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
     <div className="min-w-[500px] max-w-2xl mx-auto p-8 bg-white">
@@ -61,7 +61,7 @@ function Options() {
             id="apiToken"
             type="password"
             value={apiToken}
-            onChange={(e) => setApiToken(e.target.value)}
+            onChange={e => setApiToken(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter your API token"
             required
@@ -87,7 +87,7 @@ function Options() {
             id="maxListSize"
             type="number"
             value={maxListSize}
-            onChange={(e) => setMaxListSize(parseInt(e.target.value) || 10)}
+            onChange={e => setMaxListSize(parseInt(e.target.value) || 10)}
             min="5"
             max="50"
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -118,13 +118,13 @@ function Options() {
         )}
       </form>
     </div>
-  );
+  )
 }
 
-const container = document.getElementById('root');
+const container = document.getElementById('root')
 if (container) {
-  const root = createRoot(container);
-  root.render(<Options />);
+  const root = createRoot(container)
+  root.render(<Options />)
 }
 
-export default Options;
+export default Options

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-primary-500: oklch(0.6 0.2 250);
@@ -6,5 +6,5 @@
   --color-success: oklch(0.65 0.15 145);
   --color-error: oklch(0.6 0.2 25);
   --color-warning: oklch(0.7 0.15 85);
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }

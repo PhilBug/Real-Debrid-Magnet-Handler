@@ -1,117 +1,119 @@
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
-import { createRoot } from 'react-dom/client';
-import browser from 'webextension-polyfill';
-import { storage } from '../utils/storage';
-import type { TorrentItem } from '../utils/types';
-import '../styles/main.css';
+import React, { useState, useEffect, useSyncExternalStore } from 'react'
+import { createRoot } from 'react-dom/client'
+import browser from 'webextension-polyfill'
+import { storage } from '../utils/storage'
+import type { TorrentItem } from '../utils/types'
+import '../styles/main.css'
 
 // Storage cache for useSyncExternalStore
-const storageCache: Record<string, any> = {};
+const storageCache: Record<string, any> = {}
 
 // Initialize cache
-(async () => {
-  const data = await browser.storage.local.get(null);
-  Object.assign(storageCache, data);
-})();
+;(async () => {
+  const data = await browser.storage.local.get(null)
+  Object.assign(storageCache, data)
+})()
 
 // Subscribe to storage changes
 const subscribe = (callback: () => void) => {
-  const listener = (
-    changes: { [key: string]: { newValue?: unknown } },
-    _areaName: string
-  ) => {
+  const listener = (changes: { [key: string]: { newValue?: unknown } }, _areaName: string) => {
     for (const [key, { newValue }] of Object.entries(changes)) {
-      storageCache[key] = newValue;
+      storageCache[key] = newValue
     }
-    callback();
-  };
-  browser.storage.onChanged.addListener(listener);
+    callback()
+  }
+  browser.storage.onChanged.addListener(listener)
   return () => {
-    browser.storage.onChanged.removeListener(listener);
-  };
-};
+    browser.storage.onChanged.removeListener(listener)
+  }
+}
 
 // Get snapshot from cache
 const getSnapshot = () => {
-  return storageCache.torrents as TorrentItem[] || [];
-};
+  return (storageCache.torrents as TorrentItem[]) || []
+}
 
 function Popup() {
-  const [magnetLink, setMagnetLink] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [hasToken, setHasToken] = useState(true);
+  const [magnetLink, setMagnetLink] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [hasToken, setHasToken] = useState(true)
 
   // Subscribe to torrent list changes
-  const torrents = useSyncExternalStore(subscribe, getSnapshot);
+  const torrents = useSyncExternalStore(subscribe, getSnapshot)
 
   useEffect(() => {
-    checkToken();
-  }, []);
+    checkToken()
+  }, [])
 
   const checkToken = async () => {
-    const settings = await storage.getSettings();
-    setHasToken(!!settings.apiToken);
-  };
+    const settings = await storage.getSettings()
+    setHasToken(!!settings.apiToken)
+  }
 
   const isValidMagnet = (link: string): boolean => {
-    return link.startsWith('magnet:?') && link.includes('xt=urn:btih:');
-  };
+    return link.startsWith('magnet:?') && link.includes('xt=urn:btih:')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!isValidMagnet(magnetLink)) {
-      setError('Invalid magnet link format. Must start with "magnet:?" and contain "xt=urn:btih:"');
-      return;
+      setError('Invalid magnet link format. Must start with "magnet:?" and contain "xt=urn:btih:"')
+      return
     }
 
     if (!hasToken) {
-      setError('API token not configured. Please visit Settings to add your token.');
-      return;
+      setError('API token not configured. Please visit Settings to add your token.')
+      return
     }
 
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
 
     try {
-      const response = await browser.runtime.sendMessage({
+      const response = (await browser.runtime.sendMessage({
         type: 'ADD_MAGNET',
-        magnetLink
-      }) as { error?: string };
+        magnetLink,
+      })) as { error?: string }
 
       if (response?.error) {
-        setError(response.error);
+        setError(response.error)
       } else {
-        setMagnetLink('');
+        setMagnetLink('')
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add magnet link');
+      setError(err instanceof Error ? err.message : 'Failed to add magnet link')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleRetry = async (torrentId: string) => {
     await browser.runtime.sendMessage({
       type: 'RETRY_TORRENT',
-      torrentId
-    });
-  };
+      torrentId,
+    })
+  }
 
   const handleRemove = async (torrentId: string) => {
-    await storage.removeTorrent(torrentId);
-  };
+    await storage.removeTorrent(torrentId)
+  }
 
   const getStatusIcon = (status: TorrentItem['status']): string => {
     switch (status) {
-      case 'processing': return '⏳';
-      case 'ready': return '📄';
-      case 'error': return '❌';
-      case 'timeout': return '⏱️';
-      default: return '❓';
+      case 'processing':
+        return '⏳'
+      case 'ready':
+        return '📄'
+      case 'error':
+        return '❌'
+      case 'timeout':
+        return '⏱️'
+      default:
+        return '❓'
     }
-  };
+  }
 
   const getStatusText = (torrent: TorrentItem): React.ReactNode => {
     if (torrent.status === 'ready' && torrent.downloadUrl) {
@@ -124,10 +126,10 @@ function Popup() {
         >
           {torrent.downloadUrl}
         </a>
-      );
+      )
     }
     if (torrent.status === 'processing') {
-      return '⏳ Converting...';
+      return '⏳ Converting...'
     }
     if (torrent.status === 'timeout') {
       return (
@@ -140,7 +142,7 @@ function Popup() {
             Retry
           </button>
         </span>
-      );
+      )
     }
     if (torrent.status === 'error') {
       return (
@@ -153,10 +155,10 @@ function Popup() {
             Retry
           </button>
         </span>
-      );
+      )
     }
-    return 'Unknown status';
-  };
+    return 'Unknown status'
+  }
 
   return (
     <div className="w-[400px] p-4 bg-gray-50 min-h-[300px]">
@@ -166,7 +168,7 @@ function Popup() {
         <input
           type="text"
           value={magnetLink}
-          onChange={(e) => setMagnetLink(e.target.value)}
+          onChange={e => setMagnetLink(e.target.value)}
           placeholder="Paste magnet link here..."
           className="w-full p-2 border border-gray-300 rounded mb-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           disabled={loading}
@@ -197,16 +199,14 @@ function Popup() {
       )}
 
       <div className="max-h-96 overflow-y-auto space-y-2">
-        {torrents.map((torrent) => (
+        {torrents.map(torrent => (
           <div key={torrent.id} className="bg-white p-3 rounded shadow border border-gray-200">
             <div className="flex justify-between items-start gap-2">
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-sm text-gray-900 truncate">
                   {getStatusIcon(torrent.status)} {torrent.filename}
                 </div>
-                <div className="mt-1 text-xs text-gray-600">
-                  {getStatusText(torrent)}
-                </div>
+                <div className="mt-1 text-xs text-gray-600">{getStatusText(torrent)}</div>
               </div>
               <button
                 onClick={() => handleRemove(torrent.id)}
@@ -226,13 +226,13 @@ function Popup() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
-const container = document.getElementById('root');
+const container = document.getElementById('root')
 if (container) {
-  const root = createRoot(container);
-  root.render(<Popup />);
+  const root = createRoot(container)
+  root.render(<Popup />)
 }
 
-export default Popup;
+export default Popup

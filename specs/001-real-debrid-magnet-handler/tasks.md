@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-real-debrid-magnet-handler/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/realdebrid-api.yaml
 
-**Tests**: Manual testing via web-ext (no automated tests requested in spec)
+**Tests**: Vitest unit tests, integration tests, component tests with @testing-library/react
 
 **Organization**: Tasks grouped by user story for independent implementation and testing
 
@@ -29,6 +29,13 @@
 - [ ] T008 Configure vite.config.ts with webExtension and tailwindcss plugins
 - [ ] T009 [P] Create src/styles/main.css with Tailwind @import and @theme
 - [ ] T010 Create web-ext-config.js for Firefox development
+- [ ] T010b Install testing stack: vitest, @vitest/ui, jsdom, @testing-library/react, @testing-library/jest-dom
+- [ ] T010c Install linting: eslint, @typescript-eslint, eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-jsx-a11y
+- [ ] T010d Install formatting: prettier, eslint-config-prettier, eslint-plugin-prettier
+- [ ] T010e Create vitest.config.ts with jsdom environment and test match patterns
+- [ ] T010f Create .eslintrc.json with TypeScript and React rules
+- [ ] T010g Create .prettierrc with project formatting rules
+- [ ] T010h Add test script to package.json: "test": "vitest", "test:ui": "vitest --ui", "lint": "eslint src", "format": "prettier --write src"
 
 ---
 
@@ -42,6 +49,10 @@
 - [ ] T012 Create src/utils/storage.ts with getSettings, saveSettings, getTorrents, saveTorrents, addTorrent, removeTorrent
 - [ ] T013 Create src/utils/realdebrid-api.ts with RealDebridAPI class (validateToken, addMagnet, getTorrentInfo, selectFiles)
 - [ ] T014 Configure manifest in vite.config.ts with permissions (storage, alarms), host_permissions (api.real-debrid.com)
+
+- [ ] T014b Create src/utils/__tests__/types.test.ts: type guard tests, enum validation tests
+- [ ] T014c Create src/utils/__tests__/storage.test.ts: mock browser.storage, test getSettings/saveSettings/getTorrents/saveTorrents
+- [ ] T014d Create src/utils/__tests__/realdebrid-api.test.ts: mocked axios, test validateToken/addMagnet/getTorrentInfo/selectFiles
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,6 +74,8 @@
 - [ ] T020 [US1] Wire token validation via rdAPI.validateToken() on save
 - [ ] T021 [US1] Display success/error messages based on validation result
 - [ ] T022 [US1] Persist settings to browser.storage.sync via storage.saveSettings()
+
+- [ ] T022b Create src/options/__tests__/options.test.tsx: component render test, token input test, save button test, validation mock
 
 **Checkpoint**: US1 complete - token can be configured and validated
 
@@ -94,6 +107,8 @@
 - [ ] T038 [US2] Popup: useSyncExternalStore to subscribe to browser.storage.local changes for torrents
 - [ ] T039 [US2] Popup: render torrent list with filename, status icon, downloadUrl (when ready)
 - [ ] T040 [US2] Popup: handle "no token configured" error with link to settings
+
+- [ ] T040b Create src/popup/__tests__/Popup.test.tsx: component render test, magnet input test, convert button test, torrent list render test, status display test
 
 **Checkpoint**: US2 complete - magnet links convert to HTTP URLs with background polling
 
@@ -148,6 +163,10 @@
 - [ ] T057 Test extension loads and popup displays within 500ms (SC-003)
 - [ ] T058 Verify background polling continues when popup closed (SC-004)
 - [ ] T059 Run quickstart.md validation: load in Firefox, configure token, convert magnet
+- [ ] T060 Run ESLint on all source files: `npm run lint`
+- [ ] T061 Run Prettier check: `npm run format:check`
+- [ ] T062 Run all tests: `npm test` - verify >80% coverage
+- [ ] T063 Verify CI pipeline configuration for tests, lint, format
 
 ---
 
