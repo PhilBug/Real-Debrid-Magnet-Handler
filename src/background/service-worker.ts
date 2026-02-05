@@ -26,8 +26,12 @@ browser.runtime.onInstalled.addListener(async () => {
   scheduleNextAlarm()
   // Initialize context menu based on settings
   await syncContextMenu()
-  // Initialize context menu click listener
-  void initContextMenuListener()
+})
+
+// Initialize context menu listener with handler
+// This needs to be outside onInstalled to work on browser start/wake
+initContextMenuListener(async (link: string) => {
+  await handleAddMagnet(link)
 })
 
 // Listen for settings changes to update context menu

@@ -29,19 +29,26 @@ export async function syncContextMenu(): Promise<void> {
 }
 
 // Handle context menu click
-export async function handleContextMenuClick(info: browser.Menus.OnClickData): Promise<void> {
+export async function handleContextMenuClick(
+  info: browser.Menus.OnClickData,
+  onAddMagnet?: (link: string) => Promise<void>
+): Promise<void> {
   if (info.menuItemId === CONTEXT_MENU_ID && info.linkUrl) {
-    await browser.runtime.sendMessage({ type: 'ADD_MAGNET', magnetLink: info.linkUrl })
+    if (onAddMagnet) {
+      await onAddMagnet(info.linkUrl)
+    } else {
+      await browser.runtime.sendMessage({ type: 'ADD_MAGNET', magnetLink: info.linkUrl })
+    }
   }
 }
 
 // Initialize context menu listener
-export function initContextMenuListener(): void {
+export function initContextMenuListener(onAddMagnet?: (link: string) => Promise<void>): void {
   browser.contextMenus.onClicked.addListener(info => {
     // NOTE: This callback invocation (line 47) is intentionally not covered by unit tests.
     // It requires the browser to actually trigger a context menu click event, which is
     // only practical to test via integration/E2E tests. The callback logic itself is
     // tested separately in handleContextMenuClick() tests.
-    handleContextMenuClick(info)
+    handleContextMenuClick(info, onAddMagnet)
   })
 }
