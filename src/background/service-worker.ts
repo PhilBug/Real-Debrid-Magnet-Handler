@@ -135,7 +135,17 @@ async function checkPendingTorrents() {
       } else if (info.status === 'downloaded') {
         torrent.status = 'ready'
         torrent.filename = info.filename
-        torrent.downloadUrl = info.links?.[0] || null
+        if (info.links?.[0]) {
+          try {
+            const unrestricted = await rdAPI.unrestrictLink(info.links[0])
+            torrent.downloadUrl = unrestricted.download
+          } catch (error) {
+            console.error('Failed to unrestrict link:', error)
+            torrent.downloadUrl = null
+          }
+        } else {
+          torrent.downloadUrl = null
+        }
         hasChanges = true
       } else if (info.status === 'error' || info.status === 'dead') {
         torrent.status = 'error'

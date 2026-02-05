@@ -136,6 +136,18 @@ describe('RealDebridAPI', () => {
 
       await expect(rdAPI.deleteTorrent('TORRENT_ID')).rejects.toThrow('NO_TOKEN')
     })
+
+    it('throws NO_TOKEN error when apiToken is not set for unrestrictLink', async () => {
+      const { storage } = await import('../storage')
+      vi.mocked(storage.getSettings).mockResolvedValueOnce({
+        apiToken: null,
+        maxListSize: 10,
+        retryInterval: 30,
+        maxRetryDuration: 300,
+      })
+
+      await expect(rdAPI.unrestrictLink('https://example.com/link')).rejects.toThrow('NO_TOKEN')
+    })
   })
 
   describe('addMagnet with valid token', () => {
@@ -267,6 +279,51 @@ describe('RealDebridAPI', () => {
       await rdAPI.deleteTorrent('TORRENT_ID')
 
       expect(mockClientInstance.delete).toHaveBeenCalledWith('/torrents/delete/TORRENT_ID')
+    })
+  })
+
+  describe('unrestrictLink with valid token', () => {
+    beforeEach(async () => {
+      const { storage } = await import('../storage')
+      vi.mocked(storage.getSettings).mockResolvedValue({
+        apiToken: 'test-token',
+        maxListSize: 10,
+        retryInterval: 30,
+        maxRetryDuration: 300,
+      })
+    })
+
+    it('unrestricts link and returns download URL', async () => {
+      const mockResponse = {
+        id: 'UNRESTRICT_ID',
+        filename: 'file.zip',
+        filesize: 1024000,
+        link: 'https://hoster.com/file',
+        host: 'hoster',
+        chunks: 1,
+        crc: 0,
+        download: 'https://download.real-debrid.com/file',
+        streamable: 0,
+      }
+      mockClientInstance.post.mockResolvedValue({ data: mockResponse })
+
+      const result = await rdAPI.unrestrictLink('https://hoster.com/private-link')
+
+      expect(result).toEqual(mockResponse)
+      expect(result.download).toBe('https://download.real-debrid.com/file')
+      expect(mockClientInstance.post).toHaveBeenCalledWith(
+        '/unrestrict/link',
+        expect.any(URLSearchParams),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }
+      )
+    })
+
+    it('throws on API error', async () => {
+      mockClientInstance.post.mockRejectedValue(new Error('API Error'))
+
+      await expect(rdAPI.unrestrictLink('https://hoster.com/link')).rejects.toThrow('API Error')
     })
   })
 

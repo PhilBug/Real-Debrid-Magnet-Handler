@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
 import { storage } from './storage'
-import type { RdTorrentAddedResponse, RdTorrentInfo } from './types'
+import type { RdTorrentAddedResponse, RdTorrentInfo, RdUnrestrictLinkResponse } from './types'
 
 class RealDebridAPI {
   private client: AxiosInstance
@@ -58,6 +58,17 @@ class RealDebridAPI {
   async deleteTorrent(torrentId: string): Promise<void> {
     await this.ensureAuth()
     await this.client.delete(`/torrents/delete/${torrentId}`)
+  }
+
+  async unrestrictLink(link: string): Promise<RdUnrestrictLinkResponse> {
+    await this.ensureAuth()
+    const params = new URLSearchParams()
+    params.append('link', link)
+
+    const response = await this.client.post<RdUnrestrictLinkResponse>('/unrestrict/link', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
+    return response.data
   }
 }
 

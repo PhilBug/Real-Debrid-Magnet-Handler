@@ -24,4 +24,3 @@ Before finishing any task or committing changes, you MUST execute the following 
 3. **Format Code**: Run `npm run format` to ensure code style compliance.
 
 **Constraint**: Do not consider work finished until all tests pass, coverage is 100%, and code is formatted.
-

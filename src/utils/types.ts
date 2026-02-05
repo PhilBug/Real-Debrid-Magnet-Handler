@@ -50,3 +50,15 @@ export interface RdErrorResponse {
   error: string
   error_code?: number
 }
+
+export interface RdUnrestrictLinkResponse {
+  id: string
+  filename: string
+  filesize: number
+  link: string
+  host: string
+  chunks: number
+  crc: number
+  download: string
+  streamable: number
+}
