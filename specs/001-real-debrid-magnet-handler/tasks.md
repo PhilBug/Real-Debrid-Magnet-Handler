@@ -149,24 +149,76 @@
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: User Story 5 - Context Menu Integration (Priority: P5)
+
+**Goal**: User can right-click magnet links to send to extension without manual copying
+
+**Independent Test**: Right-click magnet link shows "Send to Real-Debrid Magnet Handler", clicking opens popup with magnet pre-filled
+
+### Implementation for US5
+
+- [ ] T050 [P] [US5] Add contextMenus permission to manifest permissions in vite.config.ts
+- [ ] T051 [P] [US5] Create src/background/context-menu.ts module
+- [ ] T052 [US5] Implement createContextMenu(): chrome.contextMenus.create with title "Send to {extension name}"
+- [ ] T053 [US5] Implement context menu click listener: extract magnet link from info.linkUrl
+- [ ] T054 [US5] On click: save magnet to browser.storage.local, open extension popup
+- [ ] T055 [US5] Add "enable context menu" toggle to Options page in src/options/options.tsx
+- [ ] T056 [US5] Store contextMenuEnabled setting in browser.storage.sync (add to Settings type in src/utils/types.ts)
+- [ ] T057 [US5] Implement context menu create/remove based on setting in src/background/context-menu.ts
+- [ ] T058 [US5] Update Popup to read pre-filled magnet from storage on mount in src/popup/Popup.tsx
+- [ ] T059 [US5] Clear pre-filled magnet from storage after submission in src/popup/Popup.tsx
+- [ ] T060 [US5] Initialize context menu on extension install in src/background/service-worker.ts
+
+**Checkpoint**: US5 complete - context menu integration works
+
+---
+
+## Phase 8: User Story 6 - Multi-File Selection UI (Priority: P6)
+
+**Goal**: User can select individual files from torrents, with option to "always save all files"
+
+**Independent Test**: When torrent has multiple files, show file selection UI; "always save all" setting skips selection
+
+### Implementation for US6
+
+- [ ] T061 [P] [US6] Add alwaysSaveAllFiles: boolean to Settings interface in src/utils/types.ts
+- [ ] T062 [P] [US6] Add "always save all files" checkbox to Options page in src/options/options.tsx
+- [ ] T063 [US6] Store alwaysSaveAllFiles in browser.storage.sync via storage.saveSettings()
+- [ ] T064 [US6] Update RealDebridAPI.getTorrentInfo() to return full files array in src/utils/realdebrid-api.ts
+- [ ] T065 [P] [US6] Create src/popup/FileSelector.tsx component
+- [ ] T066 [US6] Implement file list display with checkboxes (id, path, bytes, selected) in FileSelector
+- [ ] T067 [US6] Implement file size formatter (bytes → KB/MB/GB) in FileSelector
+- [ ] T068 [US6] Implement "Select All" / "Select None" buttons in FileSelector
+- [ ] T069 [US6] Add "Confirm Selection" button in FileSelector
+- [ ] T070 [US6] Integrate FileSelector into Popup when status="waiting_files_selection" in src/popup/Popup.tsx
+- [ ] T071 [US6] On confirm: send SELECT_FILES message to service worker with comma-separated file IDs
+- [ ] T072 [US6] Service worker: handle SELECT_FILES message, call rdAPI.selectFiles(id, files) in src/background/service-worker.ts
+- [ ] T073 [US6] Service worker: check alwaysSaveAllFiles setting, auto-select "all" if true in src/background/service-worker.ts
+- [ ] T074 [US6] Add "selecting_files" status to TorrentStatus enum in src/utils/types.ts
+- [ ] T075 [US6] Update Popup to show file selection UI or auto-select message in src/popup/Popup.tsx
+
+**Checkpoint**: US6 complete - multi-file selection with "always save all" option works
+
+---
+
+## Phase 9: Polish & Cross-Cutting Concerns
 
 **Purpose**: UX improvements, error handling, AMO compliance
 
-- [ ] T050 [P] Add loading skeleton/status indicators during API calls
-- [ ] T051 [P] Implement copy-to-clipboard button for download URLs
-- [ ] T052 Add keyboard navigation support (Enter to submit, Escape to close)
-- [ ] T053 Ensure all text is selectable and has sufficient color contrast
-- [ ] T054 Add ARIA labels to icon-only buttons (settings, remove, retry)
-- [ ] T055 Verify no unsafe-eval/dynamic code injection (MV3 compliance)
-- [ ] T056 Add error boundaries for React components
-- [ ] T057 Test extension loads and popup displays within 500ms (SC-003)
-- [ ] T058 Verify background polling continues when popup closed (SC-004)
-- [ ] T059 Run quickstart.md validation: load in Firefox, configure token, convert magnet
-- [ ] T060 Run ESLint on all source files: `npm run lint`
-- [ ] T061 Run Prettier check: `npm run format:check`
-- [ ] T062 Run all tests: `npm test` - verify >80% coverage
-- [ ] T063 Verify CI pipeline configuration for tests, lint, format
+- [ ] T076 [P] Add loading skeleton/status indicators during API calls
+- [ ] T077 [P] Implement copy-to-clipboard button for download URLs
+- [ ] T078 Add keyboard navigation support (Enter to submit, Escape to close)
+- [ ] T079 Ensure all text is selectable and has sufficient color contrast
+- [ ] T080 Add ARIA labels to icon-only buttons (settings, remove, retry)
+- [ ] T081 Verify no unsafe-eval/dynamic code injection (MV3 compliance)
+- [ ] T082 Add error boundaries for React components
+- [ ] T083 Test extension loads and popup displays within 500ms (SC-003)
+- [ ] T084 Verify background polling continues when popup closed (SC-004)
+- [ ] T085 Run quickstart.md validation: load in Firefox, configure token, convert magnet
+- [ ] T086 Run ESLint on all source files: `npm run lint`
+- [ ] T087 Run Prettier check: `npm run format:check`
+- [ ] T088 Run all tests: `npm test` - verify >80% coverage
+- [ ] T089 Verify CI pipeline configuration for tests, lint, format
 
 ---
 
@@ -175,18 +227,18 @@
 ### Phase Dependencies
 
 ```
-Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3+ (User Stories) → Phase 7 (Polish)
+Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3+ (User Stories) → Phase 9 (Polish)
                                          ↓
-                          ┌────────┬───────┴───────┬────────┐
-                          ↓        ↓               ↓        ↓
-                      Phase 3   Phase 4         Phase 5   Phase 6
-                      (US1-P1)  (US2-P2)        (US3-P3)  (US4-P4)
+        ┌────────┬───────┴───────┬────────┬────────┬────────┐
+        ↓        ↓               ↓        ↓        ↓        ↓
+    Phase 3   Phase 4         Phase 5   Phase 6   Phase 7   Phase 8
+    (US1-P1)  (US2-P2)        (US3-P3)  (US4-P4)  (US5-P5)  (US6-P6)
 ```
 
 - **Setup (Phase 1)**: No dependencies
 - **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
-- **User Stories (Phase 3-6)**: All depend on Foundational; can run in parallel or sequentially
-- **Polish (Phase 7)**: Depends on desired user stories complete
+- **User Stories (Phase 3-8)**: All depend on Foundational; US3-US4 depend on US2; US5-US6 are independent
+- **Polish (Phase 9)**: Depends on desired user stories complete
 
 ### User Story Dependencies
 
@@ -194,12 +246,20 @@ Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3+ (User Stories) → Phase
 - **US2 (P2)**: Independent - uses storage from Foundational, integrates with US1 settings but testable alone
 - **US3 (P3)**: Depends on US2 (requires torrent items with status)
 - **US4 (P4)**: Depends on US2 (requires torrent list display)
+- **US5 (P5)**: Independent - context menu feature, no story dependencies (new feature)
+- **US6 (P6)**: Extends US2 - integrates with conversion flow but independently testable (new feature)
 
 ### Critical Path (Sequential)
 
 ```
 T001-T002 → T011-T012-T013 → T015-T022 (US1) → T023-T040 (US2) → T041-T045 (US3) → T046-T049 (US4)
+                                                           ↓                      ↓
+                                                      T050-T060 (US5)       T061-T075 (US6)
 ```
+
+**New Features (User Requested)**:
+- **US5 (Phase 7)**: Context menu when right-clicking magnet links - can proceed in parallel with US3-US4
+- **US6 (Phase 8)**: Multi-file selection UI - extends US2 but can be developed independently
 
 ### Parallel Opportunities
 
@@ -222,9 +282,10 @@ T023, T024, T025  # HTML, Popup, Service Worker files
 ```
 
 **Cross-Story (after Foundational)**:
-- US1, US2 could theoretically run in parallel (different files: options vs popup/background)
+- US1, US2, US5, US6 could theoretically run in parallel (different files)
 - US3 requires US2 complete
 - US4 requires US2 complete
+- US6 extends US2 but can be developed independently with mock data
 
 ---
 
@@ -269,6 +330,8 @@ Task: "Add magnet link validation"
 | MVP 2 | US1 + US2 | Can convert magnet links to HTTP |
 | v1.1 | + US3 | Can retry failed conversions |
 | v1.2 | + US4 | Can manage torrent list |
+| v1.3 | + US5 | Context menu for magnet links (NEW) |
+| v1.4 | + US6 | Multi-file selection UI (NEW) |
 
 ### Recommended Sequence
 
@@ -276,7 +339,9 @@ Task: "Add magnet link validation"
 2. **Phase 4 (US2)**: Core conversion functionality
 3. **Phase 5 (US3)**: Retry reliability
 4. **Phase 6 (US4)**: List management UX
-5. **Phase 7**: Polish and AMO submission prep
+5. **Phase 7 (US5)**: Context menu integration (NEW)
+6. **Phase 8 (US6)**: Multi-file selection UI (NEW)
+7. **Phase 9**: Polish and AMO submission prep
 
 ---
 
@@ -284,16 +349,23 @@ Task: "Add magnet link validation"
 
 | Metric | Count |
 |--------|-------|
-| **Total Tasks** | 59 |
+| **Total Tasks** | 87 |
 | **Setup Phase** | 10 |
-| **Foundational Phase** | 4 |
+| **Foundational Phase** | 6 |
 | **US1 (P1)** | 8 |
 | **US2 (P2)** | 18 |
 | **US3 (P3)** | 5 |
 | **US4 (P4)** | 4 |
+| **US5 (P5)** | 11 (NEW) |
+| **US6 (P6)** | 15 (NEW) |
 | **Polish Phase** | 10 |
-| **Parallelizable ([P])** | 15 |
-| **Sequential** | 44 |
+| **Parallelizable ([P])** | 23 |
+| **Sequential** | 64 |
 
-**MVP Tasks (Setup + Foundational + US1)**: 22 tasks
-**Full Feature Tasks (All phases)**: 59 tasks
+**MVP Tasks (Setup + Foundational + US1)**: 24 tasks
+**Core Feature Tasks (Setup + Foundational + US1 + US2)**: 42 tasks
+**Full Feature Tasks (All phases)**: 87 tasks
+
+**New Features Added**:
+- **US5 (11 tasks)**: Context menu integration with enable/disable setting
+- **US6 (15 tasks)**: Multi-file selection UI with "always save all" setting
