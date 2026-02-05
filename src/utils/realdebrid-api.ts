@@ -60,6 +60,13 @@ class RealDebridAPI {
     await this.client.delete(`/torrents/delete/${torrentId}`)
   }
 
+  async getTorrents(filter?: 'active'): Promise<RdTorrentInfo[]> {
+    await this.ensureAuth()
+    const params = filter ? `?filter=${filter}` : ''
+    const response = await this.client.get<RdTorrentInfo[]>(`/torrents${params}`)
+    return response.data
+  }
+
   async unrestrictLink(link: string): Promise<RdUnrestrictLinkResponse> {
     await this.ensureAuth()
     const params = new URLSearchParams()

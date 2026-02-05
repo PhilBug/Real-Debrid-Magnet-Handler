@@ -148,6 +148,18 @@ describe('RealDebridAPI', () => {
 
       await expect(rdAPI.unrestrictLink('https://example.com/link')).rejects.toThrow('NO_TOKEN')
     })
+
+    it('throws NO_TOKEN error when apiToken is not set for getTorrents', async () => {
+      const { storage } = await import('../storage')
+      vi.mocked(storage.getSettings).mockResolvedValueOnce({
+        apiToken: null,
+        maxListSize: 10,
+        retryInterval: 30,
+        maxRetryDuration: 300,
+      })
+
+      await expect(rdAPI.getTorrents()).rejects.toThrow('NO_TOKEN')
+    })
   })
 
   describe('addMagnet with valid token', () => {
@@ -324,6 +336,62 @@ describe('RealDebridAPI', () => {
       mockClientInstance.post.mockRejectedValue(new Error('API Error'))
 
       await expect(rdAPI.unrestrictLink('https://hoster.com/link')).rejects.toThrow('API Error')
+    })
+  })
+
+  describe('getTorrents with valid token', () => {
+    beforeEach(async () => {
+      const { storage } = await import('../storage')
+      vi.mocked(storage.getSettings).mockResolvedValue({
+        apiToken: 'test-token',
+        maxListSize: 10,
+        retryInterval: 30,
+        maxRetryDuration: 300,
+      })
+    })
+
+    it('returns list of torrents', async () => {
+      const mockTorrents = [
+        {
+          id: 'TORRENT1',
+          filename: 'test1.torrent',
+          hash: 'abc123',
+          status: 'downloaded',
+          progress: 100,
+          links: ['https://example.com/file1.zip'],
+        },
+        {
+          id: 'TORRENT2',
+          filename: 'test2.torrent',
+          hash: 'def456',
+          status: 'downloading',
+          progress: 50,
+        },
+      ]
+      mockClientInstance.get.mockResolvedValue({ data: mockTorrents })
+
+      const result = await rdAPI.getTorrents()
+
+      expect(result).toEqual(mockTorrents)
+      expect(mockClientInstance.get).toHaveBeenCalledWith('/torrents')
+    })
+
+    it('supports active filter parameter', async () => {
+      const mockTorrents = [
+        {
+          id: 'TORRENT1',
+          filename: 'test.torrent',
+          hash: 'abc123',
+          status: 'downloading',
+          progress: 50,
+        },
+      ]
+      mockClientInstance.get.mockResolvedValue({ data: mockTorrents })
+
+      const result = await rdAPI.getTorrents('active')
+
+      expect(result).toEqual(mockTorrents)
+      expect(mockClientInstance.get).toHaveBeenCalledWith('/torrents?filter=active')
     })
   })
 

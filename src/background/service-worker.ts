@@ -4,9 +4,15 @@ import { rdAPI } from '../utils/realdebrid-api'
 import type { TorrentItem } from '../utils/types'
 
 const POLL_ALARM = 'poll-torrents'
+const POLL_INTERVAL_MS = 5000 // 5 seconds
 
 // Constants
 const DEFAULT_MAX_RETRY_DURATION = 300 // 5 minutes in seconds
+
+// Helper: Schedule next alarm
+function scheduleNextAlarm() {
+  browser.alarms.create(POLL_ALARM, { when: Date.now() + POLL_INTERVAL_MS })
+}
 
 // Helper: Extract hash from magnet link
 function extractHashFromMagnet(magnetLink: string): string | null {
@@ -16,15 +22,14 @@ function extractHashFromMagnet(magnetLink: string): string | null {
 
 // Setup alarm on install
 browser.runtime.onInstalled.addListener(() => {
-  browser.alarms.create(POLL_ALARM, {
-    periodInMinutes: 0.5, // 30 seconds
-  })
+  scheduleNextAlarm()
 })
 
 // Handle alarm for polling
 browser.alarms.onAlarm.addListener(async alarm => {
   if (alarm.name === POLL_ALARM) {
     await checkPendingTorrents()
+    scheduleNextAlarm()
   }
 })
 
@@ -52,12 +57,64 @@ async function handleAddMagnet(magnetLink: string) {
     return { error: 'Invalid magnet link' }
   }
 
+  // Check local storage first
   const existingTorrents = await storage.getTorrents()
-  const duplicate = existingTorrents.find(t => t.hash === hash)
-  if (duplicate) {
-    return { error: 'Torrent already exists', duplicate }
+  const localDuplicate = existingTorrents.find(t => t.hash === hash)
+  if (localDuplicate) {
+    return { error: 'Torrent already exists', duplicate: localDuplicate }
   }
 
+  // Check Real-Debrid for already-converted torrents
+  try {
+    const rdTorrents = await rdAPI.getTorrents()
+    const rdTorrent = rdTorrents.find(t => t.hash === hash)
+
+    if (rdTorrent) {
+      if (rdTorrent.status === 'downloaded' && rdTorrent.links?.[0]) {
+        // Reuse existing torrent - fetch unrestricted link
+        const unrestricted = await rdAPI.unrestrictLink(rdTorrent.links[0])
+
+        const torrent: TorrentItem = {
+          id: rdTorrent.id,
+          magnetLink,
+          hash,
+          filename: rdTorrent.filename,
+          downloadUrl: unrestricted.download,
+          status: 'ready',
+          addedAt: Date.now(),
+          lastRetry: Date.now(),
+          retryCount: 0,
+        }
+
+        await storage.addTorrent(torrent)
+        return { success: true, torrent, reused: true }
+      } else if (rdTorrent.status === 'error' || rdTorrent.status === 'dead') {
+        // Re-add if previous attempt failed
+        // Fall through to addMagnet below
+      } else {
+        // Still processing - just track it
+        const torrent: TorrentItem = {
+          id: rdTorrent.id,
+          magnetLink,
+          hash,
+          filename: rdTorrent.filename || 'Processing...',
+          downloadUrl: null,
+          status: 'processing',
+          addedAt: Date.now(),
+          lastRetry: Date.now(),
+          retryCount: 0,
+        }
+
+        await storage.addTorrent(torrent)
+        return { success: true, torrent, reused: true }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to check RD torrents:', error)
+    // Continue to addMagnet on error
+  }
+
+  // Add new magnet if not found on RD
   try {
     const response = await rdAPI.addMagnet(magnetLink)
 
@@ -169,9 +226,7 @@ async function checkPendingTorrents() {
 // Re-create alarm on startup (in case it was cleared)
 browser.alarms.get(POLL_ALARM).then(alarm => {
   if (!alarm) {
-    browser.alarms.create(POLL_ALARM, {
-      periodInMinutes: 0.5,
-    })
+    scheduleNextAlarm()
   }
 })
 

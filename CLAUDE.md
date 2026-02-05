@@ -19,8 +19,9 @@ This project has access to Model Context Protocol (MCP) tools that should be use
 
 Before finishing any task or committing changes, you MUST execute the following steps:
 
-1. **Verify Tests**: Run `npm test -- --run` to ensure all tests pass (non-interactive).
-2. **Check Coverage**: Run `npm run test:coverage -- --run` and confirm 100% test coverage.
-3. **Format Code**: Run `npm run format` to ensure code style compliance.
+1. **Run Linter**: Run `npm run lint` to check for code quality issues.
+2. **Verify Tests**: Run `npm test -- --run` to ensure all tests pass (non-interactive).
+3. **Check Coverage**: Run `npm run test:coverage -- --run` and confirm 100% test coverage.
+4. **Format Code**: Run `npm run format` to ensure code style compliance.
 
 **Constraint**: Do not consider work finished until all tests pass, coverage is 100%, and code is formatted.
