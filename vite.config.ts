@@ -30,6 +30,11 @@ export default defineConfig({
           scripts: ["src/background/service-worker.ts"],
           type: "module"
         },
+        browser_specific_settings: {
+          gecko: {
+            id: "real-debrid-magnet-handler@philbug.dev"
+          }
+        },
         icons: {
           "16": "icons/icon-16.png",
           "48": "icons/icon-48.png",
