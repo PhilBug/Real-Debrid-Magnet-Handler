@@ -31,13 +31,7 @@ export async function syncContextMenu(): Promise<void> {
 // Handle context menu click
 export async function handleContextMenuClick(info: browser.Menus.OnClickData): Promise<void> {
   if (info.menuItemId === CONTEXT_MENU_ID && info.linkUrl) {
-    // Save magnet link to storage for popup to pick up
-    await browser.storage.local.set({ pendingMagnet: info.linkUrl })
-
-    // Open the extension popup
-    // Note: browser.action.openPopup() is not available in all browsers
-    // Instead, we'll just save the magnet and let user open popup manually
-    // or send a message that can be displayed
+    await browser.runtime.sendMessage({ type: 'ADD_MAGNET', magnetLink: info.linkUrl })
   }
 }
 

@@ -10,6 +10,10 @@ vi.mock('webextension-polyfill', () => {
     },
   }
 
+  const mockRuntime = {
+    sendMessage: vi.fn(() => Promise.resolve()),
+  }
+
   const mockStorage = {
     sync: {
       get: vi.fn(() =>
@@ -37,10 +41,14 @@ vi.mock('webextension-polyfill', () => {
   return {
     default: {
       contextMenus: mockContextMenus,
+      runtime: mockRuntime,
       storage: mockStorage,
     },
     get mockContextMenus() {
       return mockContextMenus
+    },
+    get mockRuntime() {
+      return mockRuntime
     },
     get mockStorage() {
       return mockStorage
@@ -84,9 +92,9 @@ describe('context-menu', () => {
   })
 
   describe('handleContextMenuClick', () => {
-    it('saves magnet link to storage when menu item clicked', async () => {
+    it('sends ADD_MAGNET message when menu item clicked', async () => {
       const webextension = await import('webextension-polyfill')
-      const { mockStorage } = webextension as any
+      const { mockRuntime } = webextension as any
       const { handleContextMenuClick } = await import('../context-menu')
 
       const info = {
@@ -98,14 +106,15 @@ describe('context-menu', () => {
 
       await handleContextMenuClick(info as any)
 
-      expect(mockStorage.local.set).toHaveBeenCalledWith({
-        pendingMagnet: 'magnet:?xt=urn:btih:test',
+      expect(mockRuntime.sendMessage).toHaveBeenCalledWith({
+        type: 'ADD_MAGNET',
+        magnetLink: 'magnet:?xt=urn:btih:test',
       })
     })
 
-    it('does not save when menu item id does not match', async () => {
+    it('does not send message when menu item id does not match', async () => {
       const webextension = await import('webextension-polyfill')
-      const { mockStorage } = webextension as any
+      const { mockRuntime } = webextension as any
       const { handleContextMenuClick } = await import('../context-menu')
 
       const info = {
@@ -117,7 +126,7 @@ describe('context-menu', () => {
 
       await handleContextMenuClick(info as any)
 
-      expect(mockStorage.local.set).not.toHaveBeenCalled()
+      expect(mockRuntime.sendMessage).not.toHaveBeenCalled()
     })
   })
 
@@ -134,7 +143,7 @@ describe('context-menu', () => {
 
     it('listener callback calls handleContextMenuClick', async () => {
       const webextension = await import('webextension-polyfill')
-      const { mockContextMenus, mockStorage } = webextension as any
+      const { mockContextMenus, mockRuntime } = webextension as any
 
       // Get the callback that was passed to addListener
       const addListenerCalls = mockContextMenus.onClicked.addListener.mock.calls
@@ -151,8 +160,11 @@ describe('context-menu', () => {
 
         await callback(info as any)
 
-        // Verify the storage was updated (proves callback is wired correctly)
-        expect(mockStorage.local.set).toHaveBeenCalled()
+        // Verify message was sent (proves callback is wired correctly)
+        expect(mockRuntime.sendMessage).toHaveBeenCalledWith({
+          type: 'ADD_MAGNET',
+          magnetLink: 'magnet:?xt=urn:btih:test',
+        })
       }
     })
   })
