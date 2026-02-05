@@ -28,8 +28,9 @@ export default defineConfig({
         },
         background: {
           service_worker: 'src/background/service-worker.ts',
+          scripts: ['src/background/service-worker.ts'],
           type: 'module',
-        },
+        } as any,
         browser_specific_settings: {
           gecko: {
             id: 'real-debrid-magnet-handler@philbug.dev',
