@@ -27,6 +27,7 @@ export default defineConfig({
         },
         background: {
           service_worker: "src/background/service-worker.ts",
+          scripts: ["src/background/service-worker.ts"],
           type: "module"
         },
         icons: {
