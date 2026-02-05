@@ -32,8 +32,10 @@ class RealDebridAPI {
 
   async addMagnet(magnetLink: string): Promise<RdTorrentAddedResponse> {
     await this.ensureAuth()
-    const response = await this.client.post<RdTorrentAddedResponse>('/torrents/addMagnet', {
-      magnet: magnetLink,
+    const params = new URLSearchParams()
+    params.append('magnet', magnetLink)
+    const response = await this.client.post<RdTorrentAddedResponse>('/torrents/addMagnet', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     })
     return response.data
   }
@@ -46,7 +48,11 @@ class RealDebridAPI {
 
   async selectFiles(torrentId: string, files = 'all'): Promise<void> {
     await this.ensureAuth()
-    await this.client.post(`/torrents/selectFiles/${torrentId}`, { files })
+    const params = new URLSearchParams()
+    params.append('files', files)
+    await this.client.post(`/torrents/selectFiles/${torrentId}`, params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
   }
 
   async deleteTorrent(torrentId: string): Promise<void> {
