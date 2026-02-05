@@ -156,9 +156,13 @@ describe('RealDebridAPI', () => {
       const result = await rdAPI.addMagnet('magnet:?xt=urn:btih:test')
 
       expect(result).toEqual(mockResponse)
-      expect(mockClientInstance.post).toHaveBeenCalledWith('/torrents/addMagnet', {
-        magnet: 'magnet:?xt=urn:btih:test',
-      })
+      expect(mockClientInstance.post).toHaveBeenCalledWith(
+        '/torrents/addMagnet',
+        expect.any(URLSearchParams),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }
+      )
     })
 
     it('sets Authorization header when apiToken is available', async () => {
@@ -222,9 +226,13 @@ describe('RealDebridAPI', () => {
 
       await rdAPI.selectFiles('TORRENT_ID', 'all')
 
-      expect(mockClientInstance.post).toHaveBeenCalledWith('/torrents/selectFiles/TORRENT_ID', {
-        files: 'all',
-      })
+      expect(mockClientInstance.post).toHaveBeenCalledWith(
+        '/torrents/selectFiles/TORRENT_ID',
+        expect.any(URLSearchParams),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }
+      )
     })
 
     it('defaults to "all" files when not specified', async () => {
@@ -232,9 +240,13 @@ describe('RealDebridAPI', () => {
 
       await rdAPI.selectFiles('TORRENT_ID')
 
-      expect(mockClientInstance.post).toHaveBeenCalledWith('/torrents/selectFiles/TORRENT_ID', {
-        files: 'all',
-      })
+      expect(mockClientInstance.post).toHaveBeenCalledWith(
+        '/torrents/selectFiles/TORRENT_ID',
+        expect.any(URLSearchParams),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }
+      )
     })
   })
 

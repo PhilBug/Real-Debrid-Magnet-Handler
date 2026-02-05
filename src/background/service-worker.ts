@@ -1,10 +1,9 @@
 import browser from 'webextension-polyfill'
-import axios from 'axios'
 import { storage } from '../utils/storage'
-import type { TorrentItem, RdTorrentInfo } from '../utils/types'
+import { rdAPI } from '../utils/realdebrid-api'
+import type { TorrentItem } from '../utils/types'
 
 const POLL_ALARM = 'poll-torrents'
-const RD_API_BASE = 'https://api.real-debrid.com/rest/1.0'
 
 // Constants
 const DEFAULT_MAX_RETRY_DURATION = 300 // 5 minutes in seconds
@@ -34,16 +33,6 @@ browser.runtime.onMessage.addListener(async (message: unknown) => {
   }
 })
 
-// Helper: Get auth headers
-async function getAuthHeaders(): Promise<Record<string, string>> {
-  const settings = await storage.getSettings()
-  if (!settings.apiToken) throw new Error('NO_TOKEN')
-  return {
-    Authorization: `Bearer ${settings.apiToken}`,
-    'Content-Type': 'application/json',
-  }
-}
-
 // Add magnet link
 async function handleAddMagnet(magnetLink: string) {
   const settings = await storage.getSettings()
@@ -52,17 +41,10 @@ async function handleAddMagnet(magnetLink: string) {
   }
 
   try {
-    const headers = await getAuthHeaders()
-    const response = await axios.post(
-      `${RD_API_BASE}/torrents/addMagnet`,
-      {
-        magnet: magnetLink,
-      },
-      { headers }
-    )
+    const response = await rdAPI.addMagnet(magnetLink)
 
     const torrent: TorrentItem = {
-      id: response.data.id,
+      id: response.id,
       magnetLink,
       filename: 'Processing...',
       downloadUrl: null,
@@ -119,32 +101,23 @@ async function checkPendingTorrents() {
     }
 
     try {
-      const headers = await getAuthHeaders()
-      const info = await axios.get<RdTorrentInfo>(`${RD_API_BASE}/torrents/info/${torrent.id}`, {
-        headers,
-      })
+      const info = await rdAPI.getTorrentInfo(torrent.id)
 
       // Handle different statuses
-      if (info.data.status === 'waiting_files_selection') {
-        await axios.post(
-          `${RD_API_BASE}/torrents/selectFiles/${torrent.id}`,
-          {
-            files: 'all',
-          },
-          { headers }
-        )
+      if (info.status === 'waiting_files_selection') {
+        await rdAPI.selectFiles(torrent.id, 'all')
         hasChanges = true
-      } else if (info.data.status === 'downloaded') {
+      } else if (info.status === 'downloaded') {
         torrent.status = 'ready'
-        torrent.filename = info.data.filename
-        torrent.downloadUrl = info.data.links?.[0] || null
+        torrent.filename = info.filename
+        torrent.downloadUrl = info.links?.[0] || null
         hasChanges = true
-      } else if (info.data.status === 'error' || info.data.status === 'dead') {
+      } else if (info.status === 'error' || info.status === 'dead') {
         torrent.status = 'error'
         hasChanges = true
-      } else if (info.data.filename && torrent.filename === 'Processing...') {
+      } else if (info.filename && torrent.filename === 'Processing...') {
         // Update filename when available
-        torrent.filename = info.data.filename
+        torrent.filename = info.filename
         hasChanges = true
       }
     } catch (error) {
