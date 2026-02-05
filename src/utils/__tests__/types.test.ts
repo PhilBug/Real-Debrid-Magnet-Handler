@@ -24,7 +24,8 @@ describe('types', () => {
     it('accepts valid torrent item structure', () => {
       const item: TorrentItem = {
         id: 'ABC123',
-        magnetLink: 'magnet:?xt=urn:btih:test',
+        magnetLink: 'magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         filename: 'test.torrent',
         downloadUrl: 'https://example.com/file.zip',
         status: 'ready',
@@ -39,7 +40,8 @@ describe('types', () => {
     it('accepts null downloadUrl for processing torrents', () => {
       const item: TorrentItem = {
         id: 'ABC123',
-        magnetLink: 'magnet:?xt=urn:btih:test',
+        magnetLink: 'magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         filename: 'test.torrent',
         downloadUrl: null,
         status: 'processing',
@@ -104,6 +106,7 @@ describe('types', () => {
       const info: RdTorrentInfo = {
         id: 'ABC123',
         filename: 'test.torrent',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         status: 'downloaded',
         progress: 100,
         links: ['https://example.com/file.zip'],
@@ -116,6 +119,7 @@ describe('types', () => {
       const info: RdTorrentInfo = {
         id: 'ABC123',
         filename: 'test.torrent',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         status: 'magnet_conversion',
         progress: 0,
       }
@@ -127,6 +131,7 @@ describe('types', () => {
       const info: RdTorrentInfo = {
         id: 'ABC123',
         filename: 'test.torrent',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         status: 'waiting_files_selection',
         progress: 0,
         files: [

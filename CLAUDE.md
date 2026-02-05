@@ -2,7 +2,7 @@
 
 This project has access to Model Context Protocol (MCP) tools that should be used when working with the codebase:
 
-### Serena (Semantic Codebase Agent)
+## Serena (Semantic Codebase Agent)
 
 - **Purpose**: Deep semantic understanding of the codebase, symbol navigation, and token-efficient code modification
 - **When to use**:
@@ -15,10 +15,13 @@ This project has access to Model Context Protocol (MCP) tools that should be use
   - **Workflow**: Ask to "Activate the project at [current path]" if it's the first time running in this directory
   - **Action**: Use Serena's tools to "map" or "index" the relevant code sections before proposing changes
 
+## Development Workflow & Quality Assurance
 
-## Active Technologies
-- TypeScript 5.7 + React 19, Vite 5.4, @samrum/vite-plugin-web-extension 6.0, webextension-polyfill 0.12, axios 1.7, Tailwind CSS 4.0 (001-real-debrid-magnet-handler)
-- browser.storage.sync (settings/token), browser.storage.local (torrent list) (001-real-debrid-magnet-handler)
+Before finishing any task or committing changes, you MUST execute the following steps:
 
-## Recent Changes
-- 001-real-debrid-magnet-handler: Added TypeScript 5.7 + React 19, Vite 5.4, @samrum/vite-plugin-web-extension 6.0, webextension-polyfill 0.12, axios 1.7, Tailwind CSS 4.0
+1. **Verify Tests**: Run `npm test -- --run` to ensure all tests pass (non-interactive).
+2. **Check Coverage**: Run `npm run test:coverage -- --run` and confirm 100% test coverage.
+3. **Format Code**: Run `npm run format` to ensure code style compliance.
+
+**Constraint**: Do not consider work finished until all tests pass, coverage is 100%, and code is formatted.
+

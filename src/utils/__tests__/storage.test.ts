@@ -164,7 +164,8 @@ describe('storage', () => {
       const mockTorrents = [
         {
           id: '1',
-          magnetLink: 'magnet:?xt=test',
+          magnetLink: 'magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567',
+          hash: '0123456789abcdef0123456789abcdef01234567',
           filename: 'test.torrent',
           downloadUrl: null,
           status: 'processing' as const,
@@ -187,7 +188,8 @@ describe('storage', () => {
 
       const mockTorrents = Array.from({ length: 5 }, (_, i) => ({
         id: String(i),
-        magnetLink: 'magnet:?xt=test',
+        magnetLink: 'magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         filename: `test${i}.torrent`,
         downloadUrl: null,
         status: 'processing' as const,
@@ -224,7 +226,8 @@ describe('storage', () => {
 
       const newTorrent = {
         id: '1',
-        magnetLink: 'magnet:?xt=new',
+        magnetLink: 'magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567',
+        hash: '0123456789abcdef0123456789abcdef01234567',
         filename: 'new.torrent',
         downloadUrl: null,
         status: 'processing' as const,

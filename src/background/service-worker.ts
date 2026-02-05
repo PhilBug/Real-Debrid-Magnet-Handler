@@ -8,6 +8,12 @@ const POLL_ALARM = 'poll-torrents'
 // Constants
 const DEFAULT_MAX_RETRY_DURATION = 300 // 5 minutes in seconds
 
+// Helper: Extract hash from magnet link
+function extractHashFromMagnet(magnetLink: string): string | null {
+  const match = magnetLink.match(/xt=urn:btih:([a-fA-F0-9]{40})/i)
+  return match ? match[1].toLowerCase() : null
+}
+
 // Setup alarm on install
 browser.runtime.onInstalled.addListener(() => {
   browser.alarms.create(POLL_ALARM, {
@@ -40,12 +46,25 @@ async function handleAddMagnet(magnetLink: string) {
     return { error: 'API token not configured' }
   }
 
+  // Extract hash to check for duplicates
+  const hash = extractHashFromMagnet(magnetLink)
+  if (!hash) {
+    return { error: 'Invalid magnet link' }
+  }
+
+  const existingTorrents = await storage.getTorrents()
+  const duplicate = existingTorrents.find(t => t.hash === hash)
+  if (duplicate) {
+    return { error: 'Torrent already exists', duplicate }
+  }
+
   try {
     const response = await rdAPI.addMagnet(magnetLink)
 
     const torrent: TorrentItem = {
       id: response.id,
       magnetLink,
+      hash,
       filename: 'Processing...',
       downloadUrl: null,
       status: 'processing',
@@ -102,6 +121,12 @@ async function checkPendingTorrents() {
 
     try {
       const info = await rdAPI.getTorrentInfo(torrent.id)
+
+      // Update hash from API (for torrents added before hash field)
+      if (info.hash && !torrent.hash) {
+        torrent.hash = info.hash
+        hasChanges = true
+      }
 
       // Handle different statuses
       if (info.status === 'waiting_files_selection') {

@@ -3,6 +3,7 @@ export type TorrentStatus = 'processing' | 'ready' | 'error' | 'timeout'
 export interface TorrentItem {
   id: string
   magnetLink: string
+  hash: string
   filename: string
   downloadUrl: string | null
   status: TorrentStatus
@@ -27,6 +28,7 @@ export interface RdTorrentAddedResponse {
 export interface RdTorrentInfo {
   id: string
   filename: string
+  hash: string
   status:
     | 'magnet_conversion'
     | 'waiting_files_selection'
