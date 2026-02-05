@@ -86,26 +86,25 @@ No violations - no constitution defined.
 
 ## Phase 0: Research
 
-**Status**: In Progress
+**Status**: ✅ Complete
 
-### Research Tasks
-
-1. **@samrum/vite-plugin-web-extension latest patterns** - Ensure MV3 compatibility, manifest handling, HMR setup
-2. **React 19 + browser extension patterns** - Component lifecycle in popup context, storage event listeners
-3. **Real-Debrid API authentication flow** - Token validation, error handling, rate limits
-4. **browser.alarms vs setInterval in MV3** - Service worker lifecycle, alarm persistence
-5. **Tailwind CSS 4.0 in browser extensions** - CSP compliance, bundling strategy
+See [research.md](./research.md) for findings on:
+- @samrum/vite-plugin-web-extension v5.1.1 (not v6)
+- React 19 patterns: useSyncExternalStore, useEffectEvent
+- Real-Debrid Bearer token auth + error handling
+- browser.alarms for MV3 polling
+- Tailwind CSS 4.0 Vite plugin with CSP
 
 ---
 
 ## Phase 1: Design Artifacts
 
-**Status**: Pending (Phase 0 completion)
+**Status**: ✅ Complete
 
-- [ ] data-model.md
-- [ ] contracts/realdebrid-api.yaml
-- [ ] quickstart.md
-- [ ] Agent context update
+- [x] [data-model.md](./data-model.md) - TorrentItem, Settings, state transitions
+- [x] [contracts/realdebrid-api.yaml](./contracts/realdebrid-api.yaml) - OpenAPI spec
+- [x] [quickstart.md](./quickstart.md) - Setup guide with code examples
+- [x] Agent context update (CLAUDE.md modified)
 
 ---
 

@@ -15,3 +15,10 @@ This project has access to Model Context Protocol (MCP) tools that should be use
   - **Workflow**: Ask to "Activate the project at [current path]" if it's the first time running in this directory
   - **Action**: Use Serena's tools to "map" or "index" the relevant code sections before proposing changes
 
+
+## Active Technologies
+- TypeScript 5.7 + React 19, Vite 5.4, @samrum/vite-plugin-web-extension 6.0, webextension-polyfill 0.12, axios 1.7, Tailwind CSS 4.0 (001-real-debrid-magnet-handler)
+- browser.storage.sync (settings/token), browser.storage.local (torrent list) (001-real-debrid-magnet-handler)
+
+## Recent Changes
+- 001-real-debrid-magnet-handler: Added TypeScript 5.7 + React 19, Vite 5.4, @samrum/vite-plugin-web-extension 6.0, webextension-polyfill 0.12, axios 1.7, Tailwind CSS 4.0

@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Real-Debrid API (Subset for Extension)
+  version: 1.0.0
+  description: API endpoints used by Real-Debrid Magnet Handler extension
+
+servers:
+  - url: https://api.real-debrid.com/rest/1.0
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+
+paths:
+  /user:
+    get:
+      summary: Validate token and get user info
+      description: Used to validate API token on save
+      responses:
+        '200':
+          description: Token valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /torrents/addMagnet:
+    post:
+      summary: Add magnet link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - magnet
+              properties:
+                magnet:
+                  type: string
+                  example: "magnet:?xt=urn:btih:..."
+      responses:
+        '200':
+          description: Torrent added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TorrentAdded'
+        '400':
+          description: Bad magnet link
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /torrents/info/{id}:
+    get:
+      summary: Get torrent info and status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Torrent info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TorrentInfo'
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /torrents/selectFiles/{id}:
+    post:
+      summary: Select files for download
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - files
+              properties:
+                files:
+                  type: string
+                  description: "all" or comma-separated file IDs
+                  example: "all"
+      responses:
+        '204':
+          description: Files selected
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /torrents/delete/{id}:
+    delete:
+      summary: Delete torrent (optional cleanup)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Torrent deleted
+        '401':
+          description: Invalid token
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        premium:
+          type: integer
+          description: 0 = free, >0 = premium days remaining
+
+    TorrentAdded:
+      type: object
+      required:
+        - id
+        - uri
+      properties:
+        id:
+          type: string
+          description: Torrent ID for subsequent calls
+        uri:
+          type: string
+          description: Resource URI
+
+    TorrentInfo:
+      type: object
+      required:
+        - id
+        - filename
+        - status
+        - progress
+      properties:
+        id:
+          type: string
+        filename:
+          type: string
+        status:
+          type: string
+          enum:
+            - magnet_conversion
+            - waiting_files_selection
+            - downloading
+            - downloaded
+            - error
+            - dead
+        progress:
+          type: number
+          description: 0-100
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              path:
+                type: string
+              bytes:
+                type: integer
+              selected:
+                type: integer
+                description: 0 or 1
+        links:
+          type: array
+          description: HTTP download URLs (only when status=downloaded)
+          items:
+            type: string
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+        error_code:
+          type: integer
+          description: Optional error code
