@@ -59,6 +59,8 @@ describe('storage', () => {
         maxListSize: 10,
         retryInterval: 30,
         maxRetryDuration: 300,
+        contextMenuEnabled: false,
+        alwaysSaveAllFiles: false,
       })
     })
 
@@ -70,6 +72,8 @@ describe('storage', () => {
         maxListSize: 20,
         retryInterval: 60,
         maxRetryDuration: 600,
+        contextMenuEnabled: true,
+        alwaysSaveAllFiles: true,
       }
       mockStorageSync.get.mockResolvedValueOnce(storedSettings)
 

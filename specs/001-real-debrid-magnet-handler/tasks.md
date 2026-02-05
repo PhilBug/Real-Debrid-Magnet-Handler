@@ -157,17 +157,17 @@
 
 ### Implementation for US5
 
-- [ ] T050 [P] [US5] Add contextMenus permission to manifest permissions in vite.config.ts
-- [ ] T051 [P] [US5] Create src/background/context-menu.ts module
-- [ ] T052 [US5] Implement createContextMenu(): chrome.contextMenus.create with title "Send to {extension name}"
-- [ ] T053 [US5] Implement context menu click listener: extract magnet link from info.linkUrl
-- [ ] T054 [US5] On click: save magnet to browser.storage.local, open extension popup
-- [ ] T055 [US5] Add "enable context menu" toggle to Options page in src/options/options.tsx
-- [ ] T056 [US5] Store contextMenuEnabled setting in browser.storage.sync (add to Settings type in src/utils/types.ts)
-- [ ] T057 [US5] Implement context menu create/remove based on setting in src/background/context-menu.ts
-- [ ] T058 [US5] Update Popup to read pre-filled magnet from storage on mount in src/popup/Popup.tsx
-- [ ] T059 [US5] Clear pre-filled magnet from storage after submission in src/popup/Popup.tsx
-- [ ] T060 [US5] Initialize context menu on extension install in src/background/service-worker.ts
+- [x] T050 [P] [US5] Add contextMenus permission to manifest permissions in vite.config.ts
+- [x] T051 [P] [US5] Create src/background/context-menu.ts module
+- [x] T052 [US5] Implement createContextMenu(): chrome.contextMenus.create with title "Send to {extension name}"
+- [x] T053 [US5] Implement context menu click listener: extract magnet link from info.linkUrl
+- [x] T054 [US5] On click: save magnet to browser.storage.local, open extension popup
+- [x] T055 [US5] Add "enable context menu" toggle to Options page in src/options/options.tsx
+- [x] T056 [US5] Store contextMenuEnabled setting in browser.storage.sync (add to Settings type in src/utils/types.ts)
+- [x] T057 [US5] Implement context menu create/remove based on setting in src/background/context-menu.ts
+- [x] T058 [US5] Update Popup to read pre-filled magnet from storage on mount in src/popup/Popup.tsx
+- [x] T059 [US5] Clear pre-filled magnet from storage after submission in src/popup/Popup.tsx
+- [x] T060 [US5] Initialize context menu on extension install in src/background/service-worker.ts
 
 **Checkpoint**: US5 complete - context menu integration works
 
@@ -181,21 +181,21 @@
 
 ### Implementation for US6
 
-- [ ] T061 [P] [US6] Add alwaysSaveAllFiles: boolean to Settings interface in src/utils/types.ts
-- [ ] T062 [P] [US6] Add "always save all files" checkbox to Options page in src/options/options.tsx
-- [ ] T063 [US6] Store alwaysSaveAllFiles in browser.storage.sync via storage.saveSettings()
-- [ ] T064 [US6] Update RealDebridAPI.getTorrentInfo() to return full files array in src/utils/realdebrid-api.ts
-- [ ] T065 [P] [US6] Create src/popup/FileSelector.tsx component
-- [ ] T066 [US6] Implement file list display with checkboxes (id, path, bytes, selected) in FileSelector
-- [ ] T067 [US6] Implement file size formatter (bytes → KB/MB/GB) in FileSelector
-- [ ] T068 [US6] Implement "Select All" / "Select None" buttons in FileSelector
-- [ ] T069 [US6] Add "Confirm Selection" button in FileSelector
-- [ ] T070 [US6] Integrate FileSelector into Popup when status="waiting_files_selection" in src/popup/Popup.tsx
-- [ ] T071 [US6] On confirm: send SELECT_FILES message to service worker with comma-separated file IDs
-- [ ] T072 [US6] Service worker: handle SELECT_FILES message, call rdAPI.selectFiles(id, files) in src/background/service-worker.ts
-- [ ] T073 [US6] Service worker: check alwaysSaveAllFiles setting, auto-select "all" if true in src/background/service-worker.ts
-- [ ] T074 [US6] Add "selecting_files" status to TorrentStatus enum in src/utils/types.ts
-- [ ] T075 [US6] Update Popup to show file selection UI or auto-select message in src/popup/Popup.tsx
+- [x] T061 [P] [US6] Add alwaysSaveAllFiles: boolean to Settings interface in src/utils/types.ts
+- [x] T062 [P] [US6] Add "always save all files" checkbox to Options page in src/options/options.tsx
+- [x] T063 [US6] Store alwaysSaveAllFiles in browser.storage.sync via storage.saveSettings()
+- [x] T064 [US6] Update RealDebridAPI.getTorrentInfo() to return full files array in src/utils/realdebrid-api.ts
+- [x] T065 [P] [US6] Create src/popup/FileSelector.tsx component
+- [x] T066 [US6] Implement file list display with checkboxes (id, path, bytes, selected) in FileSelector
+- [x] T067 [US6] Implement file size formatter (bytes → KB/MB/GB) in FileSelector
+- [x] T068 [US6] Implement "Select All" / "Select None" buttons in FileSelector
+- [x] T069 [US6] Add "Confirm Selection" button in FileSelector
+- [x] T070 [US6] Integrate FileSelector into Popup when status="waiting_files_selection" in src/popup/Popup.tsx
+- [x] T071 [US6] On confirm: send SELECT_FILES message to service worker with comma-separated file IDs
+- [x] T072 [US6] Service worker: handle SELECT_FILES message, call rdAPI.selectFiles(id, files) in src/background/service-worker.ts
+- [x] T073 [US6] Service worker: check alwaysSaveAllFiles setting, auto-select "all" if true in src/background/service-worker.ts
+- [x] T074 [US6] Add "selecting_files" status to TorrentStatus enum in src/utils/types.ts
+- [x] T075 [US6] Update Popup to show file selection UI or auto-select message in src/popup/Popup.tsx
 
 **Checkpoint**: US6 complete - multi-file selection with "always save all" option works
 

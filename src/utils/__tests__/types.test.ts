@@ -77,6 +77,8 @@ describe('types', () => {
         maxListSize: 10,
         retryInterval: 30,
         maxRetryDuration: 300,
+        contextMenuEnabled: false,
+        alwaysSaveAllFiles: false,
       }
       expect(settings.maxListSize).toBe(10)
       expect(settings.apiToken).toBe('test-token')
@@ -88,6 +90,8 @@ describe('types', () => {
         maxListSize: 10,
         retryInterval: 30,
         maxRetryDuration: 300,
+        contextMenuEnabled: false,
+        alwaysSaveAllFiles: false,
       }
       expect(settings.apiToken).toBeNull()
     })

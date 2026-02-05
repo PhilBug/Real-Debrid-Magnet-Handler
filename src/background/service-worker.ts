@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import { rdAPI } from '../utils/realdebrid-api'
+import { syncContextMenu, initContextMenuListener } from './context-menu'
 import type { TorrentItem } from '../utils/types'
 
 const POLL_ALARM = 'poll-torrents'
@@ -21,8 +22,19 @@ function extractHashFromMagnet(magnetLink: string): string | null {
 }
 
 // Setup alarm on install
-browser.runtime.onInstalled.addListener(() => {
+browser.runtime.onInstalled.addListener(async () => {
   scheduleNextAlarm()
+  // Initialize context menu based on settings
+  await syncContextMenu()
+  // Initialize context menu click listener
+  void initContextMenuListener()
+})
+
+// Listen for settings changes to update context menu
+browser.storage.onChanged.addListener(async (changes, areaName) => {
+  if (areaName === 'sync' && (changes.contextMenuEnabled || changes.alwaysSaveAllFiles)) {
+    await syncContextMenu()
+  }
 })
 
 // Handle alarm for polling
@@ -30,17 +42,6 @@ browser.alarms.onAlarm.addListener(async alarm => {
   if (alarm.name === POLL_ALARM) {
     await checkPendingTorrents()
     scheduleNextAlarm()
-  }
-})
-
-// Handle messages from popup
-browser.runtime.onMessage.addListener(async (message: unknown) => {
-  const msg = message as { type?: string; magnetLink?: string; torrentId?: string }
-
-  if (msg.type === 'ADD_MAGNET') {
-    return await handleAddMagnet(msg.magnetLink || '')
-  } else if (msg.type === 'RETRY_TORRENT') {
-    return await handleRetry(msg.torrentId || '')
   }
 })
 
@@ -153,6 +154,35 @@ async function handleRetry(torrentId: string) {
   return { success: true }
 }
 
+// Select files for torrent
+async function handleSelectFiles(torrentId: string, selectedFiles: string) {
+  await rdAPI.selectFiles(torrentId, selectedFiles)
+
+  // Update torrent status to processing after file selection
+  const torrents = await storage.getTorrents()
+  const torrent = torrents.find(t => t.id === torrentId)
+
+  if (torrent) {
+    torrent.status = 'processing'
+    await storage.saveTorrents(torrents)
+  }
+
+  return { success: true }
+}
+
+// Get torrent info for file selection UI
+async function handleGetTorrentInfo(torrentId: string) {
+  try {
+    const info = await rdAPI.getTorrentInfo(torrentId)
+    return { success: true, info }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to get torrent info',
+    }
+  }
+}
+
 // Check pending torrents
 async function checkPendingTorrents() {
   const settings = await storage.getSettings()
@@ -187,8 +217,16 @@ async function checkPendingTorrents() {
 
       // Handle different statuses
       if (info.status === 'waiting_files_selection') {
-        await rdAPI.selectFiles(torrent.id, 'all')
-        hasChanges = true
+        if (settings.alwaysSaveAllFiles) {
+          // Auto-select all files if setting is enabled
+          await rdAPI.selectFiles(torrent.id, 'all')
+          hasChanges = true
+        } else {
+          // Update status to selecting_files so UI can show file selector
+          torrent.status = 'selecting_files'
+          torrent.filename = info.filename || 'Select files...'
+          hasChanges = true
+        }
       } else if (info.status === 'downloaded') {
         torrent.status = 'ready'
         torrent.filename = info.filename
@@ -227,6 +265,26 @@ async function checkPendingTorrents() {
 browser.alarms.get(POLL_ALARM).then(alarm => {
   if (!alarm) {
     scheduleNextAlarm()
+  }
+})
+
+// Handle messages from popup (must be after handler functions are defined)
+browser.runtime.onMessage.addListener(async (message: unknown) => {
+  const msg = message as {
+    type?: string
+    magnetLink?: string
+    torrentId?: string
+    selectedFiles?: string
+  }
+
+  if (msg.type === 'ADD_MAGNET') {
+    return await handleAddMagnet(msg.magnetLink || '')
+  } else if (msg.type === 'RETRY_TORRENT') {
+    return await handleRetry(msg.torrentId || '')
+  } else if (msg.type === 'SELECT_FILES') {
+    return await handleSelectFiles(msg.torrentId || '', msg.selectedFiles || 'all')
+  } else if (msg.type === 'GET_TORRENT_INFO') {
+    return await handleGetTorrentInfo(msg.torrentId || '')
   }
 })
 

@@ -7,6 +7,8 @@ import '../styles/main.css'
 function Options() {
   const [apiToken, setApiToken] = useState('')
   const [maxListSize, setMaxListSize] = useState(10)
+  const [contextMenuEnabled, setContextMenuEnabled] = useState(false)
+  const [alwaysSaveAllFiles, setAlwaysSaveAllFiles] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -18,6 +20,8 @@ function Options() {
     const settings = await storage.getSettings()
     setApiToken(settings.apiToken || '')
     setMaxListSize(settings.maxListSize)
+    setContextMenuEnabled(settings.contextMenuEnabled)
+    setAlwaysSaveAllFiles(settings.alwaysSaveAllFiles)
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -38,6 +42,8 @@ function Options() {
       await storage.saveSettings({
         apiToken,
         maxListSize,
+        contextMenuEnabled,
+        alwaysSaveAllFiles,
       })
 
       setMessage('Settings saved successfully!')
@@ -94,6 +100,36 @@ function Options() {
           />
           <p className="text-xs text-gray-500 mt-1">
             Number of torrents to keep in the list (5-50)
+          </p>
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={contextMenuEnabled}
+              onChange={e => setContextMenuEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">Enable Context Menu</span>
+          </label>
+          <p className="text-xs text-gray-500 mt-1 ml-6">
+            Add "Send to Real-Debrid Magnet Handler" option when right-clicking magnet links
+          </p>
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={alwaysSaveAllFiles}
+              onChange={e => setAlwaysSaveAllFiles(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">Always Save All Files</span>
+          </label>
+          <p className="text-xs text-gray-500 mt-1 ml-6">
+            Automatically select all files in multi-file torrents (skip file selection UI)
           </p>
         </div>
 

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
-import type { TorrentItem } from '../utils/types'
+import { FileSelector } from './FileSelector'
+import type { TorrentItem, RdTorrentInfo } from '../utils/types'
 import '../styles/main.css'
 
 function Popup() {
@@ -11,10 +12,13 @@ function Popup() {
   const [error, setError] = useState('')
   const [hasToken, setHasToken] = useState(true)
   const [torrents, setTorrents] = useState<TorrentItem[]>([])
+  const [selectingFilesTorrentId, setSelectingFilesTorrentId] = useState<string | null>(null)
+  const [torrentInfoCache, setTorrentInfoCache] = useState<Map<string, RdTorrentInfo>>(new Map())
 
   useEffect(() => {
     checkToken()
     loadTorrents()
+    loadPendingMagnet()
 
     // Subscribe to torrent list changes
     const listener = (changes: { [key: string]: { newValue?: unknown } }, areaName: string) => {
@@ -40,6 +44,19 @@ function Popup() {
   const checkToken = async () => {
     const settings = await storage.getSettings()
     setHasToken(!!settings.apiToken)
+  }
+
+  const loadPendingMagnet = async () => {
+    try {
+      const data = await browser.storage.local.get('pendingMagnet')
+      if (data.pendingMagnet && typeof data.pendingMagnet === 'string') {
+        setMagnetLink(data.pendingMagnet)
+        // Clear the pending magnet after loading
+        await browser.storage.local.remove('pendingMagnet')
+      }
+    } catch (e) {
+      console.error('Failed to load pending magnet', e)
+    }
   }
 
   const isValidMagnet = (link: string): boolean => {
@@ -91,6 +108,36 @@ function Popup() {
     await storage.removeTorrent(torrentId)
   }
 
+  const handleSelectFiles = async (torrentId: string, selectedFiles: string) => {
+    await browser.runtime.sendMessage({
+      type: 'SELECT_FILES',
+      torrentId,
+      selectedFiles,
+    })
+    setSelectingFilesTorrentId(null)
+  }
+
+  const openFileSelector = async (torrentId: string) => {
+    setSelectingFilesTorrentId(torrentId)
+    // Fetch torrent info for file selection
+    try {
+      const response = (await browser.runtime.sendMessage({
+        type: 'GET_TORRENT_INFO',
+        torrentId,
+      })) as { success?: boolean; info?: RdTorrentInfo }
+
+      if (response?.success && response?.info) {
+        setTorrentInfoCache(new Map(torrentInfoCache).set(torrentId, response.info))
+      }
+    } catch (error) {
+      console.error('Failed to fetch torrent info:', error)
+    }
+  }
+
+  const closeFileSelector = () => {
+    setSelectingFilesTorrentId(null)
+  }
+
   const getStatusIcon = (status: TorrentItem['status']): string => {
     switch (status) {
       case 'processing':
@@ -101,6 +148,8 @@ function Popup() {
         return '❌'
       case 'timeout':
         return '⏱️'
+      case 'selecting_files':
+        return '📋'
       default:
         return '❓'
     }
@@ -144,6 +193,19 @@ function Popup() {
             className="ml-1 underline hover:no-underline"
           >
             Retry
+          </button>
+        </span>
+      )
+    }
+    if (torrent.status === 'selecting_files') {
+      return (
+        <span className="text-blue-600 text-xs">
+          📋 Select files -{' '}
+          <button
+            onClick={() => openFileSelector(torrent.id)}
+            className="ml-1 underline hover:no-underline"
+          >
+            Choose
           </button>
         </span>
       )
@@ -216,6 +278,21 @@ function Popup() {
           </div>
         )}
       </div>
+
+      {/* File Selector Modal */}
+      {selectingFilesTorrentId && torrentInfoCache.get(selectingFilesTorrentId) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="w-[500px] max-h-[80vh] overflow-y-auto">
+            <FileSelector
+              torrentInfo={torrentInfoCache.get(selectingFilesTorrentId)!}
+              onConfirm={selectedFiles =>
+                handleSelectFiles(selectingFilesTorrentId!, selectedFiles)
+              }
+              onCancel={closeFileSelector}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

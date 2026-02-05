@@ -24,19 +24,21 @@ initializeCache()
 export const storage = {
   // Sync storage (settings)
   async getSettings(): Promise<Settings> {
-    const result = (await browser.storage.sync.get({
+    const result = await browser.storage.sync.get({
       apiToken: null,
       maxListSize: 10,
       retryInterval: 30,
       maxRetryDuration: 300,
-    })) as unknown as Settings
-    return result
+      contextMenuEnabled: false,
+      alwaysSaveAllFiles: false,
+    })
+    return result as unknown as Settings
   },
 
   async saveSettings(settings: Partial<Settings>): Promise<void> {
     await browser.storage.sync.set(settings)
     // Update cache
-    Object.assign(storageCache, settings)
+    Object.assign(storageCache, settings as Record<string, unknown>)
   },
 
   // Local storage (torrents)

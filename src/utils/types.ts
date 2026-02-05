@@ -1,4 +1,4 @@
-export type TorrentStatus = 'processing' | 'ready' | 'error' | 'timeout'
+export type TorrentStatus = 'processing' | 'ready' | 'error' | 'timeout' | 'selecting_files'
 
 export interface TorrentItem {
   id: string
@@ -17,6 +17,8 @@ export interface Settings {
   maxListSize: number
   retryInterval: number
   maxRetryDuration: number
+  contextMenuEnabled: boolean
+  alwaysSaveAllFiles: boolean
 }
 
 // Real-Debrid API response types
@@ -44,6 +46,11 @@ export interface RdTorrentInfo {
     selected: number
   }>
   links?: string[]
+}
+
+// Store torrent info for file selection UI
+export interface TorrentInfoCache {
+  [torrentId: string]: RdTorrentInfo
 }
 
 export interface RdErrorResponse {

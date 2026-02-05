@@ -12,7 +12,7 @@ export default defineConfig({
         name: 'Real-Debrid Magnet Handler',
         version: '1.0.0',
         description: 'Convert magnet links to HTTP downloads via Real-Debrid',
-        permissions: ['storage', 'alarms'],
+        permissions: ['storage', 'alarms', 'contextMenus'],
         host_permissions: ['https://api.real-debrid.com/*'],
         action: {
           default_popup: 'src/popup/popup.html',
