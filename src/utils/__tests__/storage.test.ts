@@ -13,13 +13,21 @@ vi.mock('webextension-polyfill', () => {
     set: vi.fn(),
   }
 
+  // Track listener
+  let listenerCallback: any = null
+
   return {
     default: {
       storage: {
         sync: mockStorageSync,
         local: mockStorageLocal,
         onChanged: {
-          addListener: vi.fn(),
+          addListener: vi.fn((callback: any) => {
+            listenerCallback = callback
+          }),
+          get __callback() {
+            return listenerCallback
+          },
         },
       },
     },
@@ -73,7 +81,6 @@ describe('storage', () => {
     it('merges stored settings with defaults', async () => {
       const webextension = await import('webextension-polyfill')
       const { mockStorageSync } = webextension as any
-      // browser.storage.get(defaults) returns merged values: stored + defaults for missing keys
       mockStorageSync.get.mockImplementationOnce((defaults?: any) =>
         Promise.resolve({
           ...defaults,
@@ -299,6 +306,32 @@ describe('storage', () => {
       const cache = storage.getCache()
       expect(typeof cache).toBe('object')
       expect(Array.isArray(cache)).toBe(false)
+    })
+  })
+
+  describe('storage change listener', () => {
+    it('updates cache when storage changes', async () => {
+      const webextension = await import('webextension-polyfill')
+      const browser = webextension.default as any
+
+      // Get the registered listener
+      const listenerCallback = browser.storage.onChanged.__callback
+
+      // Get initial cache
+      const cacheBefore = storage.getCache()
+
+      // Simulate a storage change
+      const mockChanges = {
+        apiToken: { newValue: 'new-token-123', oldValue: null },
+        maxListSize: { newValue: 20, oldValue: 10 },
+      }
+
+      listenerCallback(mockChanges)
+
+      // Verify cache was updated
+      const cacheAfter = storage.getCache()
+      expect(cacheAfter).toEqual(cacheBefore) // Cache is the same object reference
+      expect(cacheAfter.apiToken).toBe('new-token-123')
     })
   })
 })
