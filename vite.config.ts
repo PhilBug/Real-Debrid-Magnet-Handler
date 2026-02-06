@@ -27,13 +27,16 @@ export default defineConfig({
           open_in_tab: false,
         },
         background: {
-          service_worker: 'src/background/service-worker.ts',
           scripts: ['src/background/service-worker.ts'],
           type: 'module',
         } as any,
         browser_specific_settings: {
           gecko: {
             id: 'real-debrid-magnet-handler@philbug.dev',
+            strict_min_version: '142.0',
+            data_collection_permissions: {
+              required: ['none'],
+            },
           },
         },
         icons: {
