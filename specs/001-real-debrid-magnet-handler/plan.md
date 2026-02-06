@@ -11,8 +11,8 @@ Firefox Manifest V3 extension that converts magnet links to HTTP download URLs v
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.7
-**Primary Dependencies**: React 19, Vite 5.4, @samrum/vite-plugin-web-extension 6.0, webextension-polyfill 0.12, axios 1.7, Tailwind CSS 4.0
+**Language/Version**: TypeScript 5.9
+**Primary Dependencies**: React 19, Vite 7.3, @samrum/vite-plugin-web-extension 5.1, webextension-polyfill 0.12, axios 1.13, Tailwind CSS 4.1
 **Storage**: browser.storage.sync (settings/token), browser.storage.local (torrent list)
 **Testing**: Manual testing via web-ext; Jest/Vitest for unit tests (future)
 **Target Platform**: Firefox 115+ (MV3 support)

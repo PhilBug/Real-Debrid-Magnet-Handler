@@ -11,9 +11,9 @@ A Firefox extension (Manifest V3) that allows users to paste magnet links, conve
 ### Core Build Tools
 ```json
 {
-  "vite": "^5.4.11",
-  "@samrum/vite-plugin-web-extension": "^6.0.0",
-  "web-ext": "^8.9.0",
+  "vite": "^7.3.1",
+  "@samrum/vite-plugin-web-extension": "^5.1.1",
+  "web-ext": "^9.2.0",
   "webextension-polyfill": "^0.12.0"
 }
 ```
@@ -21,29 +21,28 @@ A Firefox extension (Manifest V3) that allows users to paste magnet links, conve
 ### UI Framework & Styling
 ```json
 {
-  "react": "^19.0.0",
-  "react-dom": "^19.0.0",
-  "@types/react": "^19.0.0",
-  "@types/react-dom": "^19.0.0",
-  "tailwindcss": "^4.0.0"
+  "react": "^19.2.4",
+  "react-dom": "^19.2.4",
+  "@types/react": "^19.2.13",
+  "@types/react-dom": "^19.2.3",
+  "tailwindcss": "^4.1.18"
 }
 ```
 
 ### Development Dependencies
 ```json
 {
-  "typescript": "^5.7.2",
-  "@types/webextension-polyfill": "^0.12.1",
-  "eslint": "^9.17.0",
-  "prettier": "^3.4.2",
-  "vite-plugin-web-extension": "^4.2.0"
+  "typescript": "^5.9.3",
+  "@types/webextension-polyfill": "^0.12.4",
+  "eslint": "^9.39.2",
+  "prettier": "^3.8.1"
 }
 ```
 
 ### HTTP Client
 ```json
 {
-  "axios": "^1.7.9"
+  "axios": "^1.13.4"
 }
 ```
 

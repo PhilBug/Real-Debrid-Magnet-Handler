@@ -244,7 +244,7 @@ npm run dev
 npm run preview
 
 # Type check
-npx tsc --noEmit
+npm run lint
 
 # Build for production
 npm run build
