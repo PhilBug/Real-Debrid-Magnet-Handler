@@ -238,13 +238,13 @@ export default defineConfig({
 
 | Component | Choice | Version |
 |-----------|--------|---------|
-| Build | Vite | ^5.4.11 |
+| Build | Vite | ^7.3.1 |
 | Plugin | @samrum/vite-plugin-web-extension | ^5.1.1 |
-| Plugin | @tailwindcss/vite | latest |
-| Framework | React | ^19.0.0 |
-| Language | TypeScript | ^5.7.2 |
+| Plugin | @tailwindcss/vite | ^4.1.18 |
+| Framework | React | ^19.2.4 |
+| Language | TypeScript | ^5.9.3 |
 | Storage | browser.storage.local + sync | - |
-| HTTP | axios | ^1.7.9 |
+| HTTP | axios | ^1.13.4 |
 | Polyfill | webextension-polyfill | ^0.12.0 |
 
 ---
