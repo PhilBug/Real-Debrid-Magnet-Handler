@@ -5,7 +5,7 @@ import webExtension from '@samrum/vite-plugin-web-extension'
 export default defineConfig({
   base: '',
   plugins: [
-    tailwindcss(),
+    tailwindcss() as any,
     webExtension({
       manifest: {
         manifest_version: 3,
@@ -29,7 +29,7 @@ export default defineConfig({
         background: {
           scripts: ['src/background/service-worker.ts'],
           type: 'module',
-        } as any,
+        },
         browser_specific_settings: {
           gecko: {
             id: 'real-debrid-magnet-handler@philbug.dev',
@@ -45,7 +45,7 @@ export default defineConfig({
           '128': 'icons/icon-128.png',
         },
       },
-    }),
+    }) as any,
   ],
   publicDir: 'public',
   build: {
