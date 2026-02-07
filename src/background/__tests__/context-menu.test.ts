@@ -75,6 +75,7 @@ describe('context-menu', () => {
         title: 'Send to Real-Debrid Magnet Handler',
         contexts: ['link'],
         documentUrlPatterns: ['<all_urls>'],
+        targetUrlPatterns: ['magnet:*'],
       })
     })
   })
