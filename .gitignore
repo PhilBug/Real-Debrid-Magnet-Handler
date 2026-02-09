@@ -21,6 +21,7 @@ lerna-debug.log*
 
 # Editor directories and files
 .vscode/*
+.kilocode
 !.vscode/extensions.json
 .idea/
 .DS_Store
