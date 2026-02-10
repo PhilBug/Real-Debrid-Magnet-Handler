@@ -27,7 +27,7 @@ export default defineConfig({
           open_in_tab: false,
         },
         background: {
-          scripts: ['src/background/service-worker.ts'],
+          service_worker: 'src/background/service-worker.ts',
           type: 'module',
         },
         browser_specific_settings: {
