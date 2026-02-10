@@ -1,110 +1,105 @@
 {
-    "branches": [
-        "master"
-    ],
-    "plugins": [
-        [
-            "@semantic-release/commit-analyzer",
-            {
-                "preset": "conventionalcommits",
-                "releaseRules": [
-                    {
-                        "type": "feat",
-                        "release": "minor"
-                    },
-                    {
-                        "type": "fix",
-                        "release": "patch"
-                    },
-                    {
-                        "type": "chore",
-                        "release": "patch"
-                    },
-                    {
-                        "type": "docs",
-                        "release": "patch"
-                    },
-                    {
-                        "type": "refactor",
-                        "release": "patch"
-                    },
-                    {
-                        "type": "test",
-                        "release": "patch"
-                    }
-                ]
-            }
-        ],
-        [
-            "@semantic-release/release-notes-generator",
-            {
-                "preset": "conventionalcommits",
-                "presetConfig": {
-                    "types": [
-                        {
-                            "type": "feat",
-                            "section": "Features"
-                        },
-                        {
-                            "type": "fix",
-                            "section": "Bug Fixes"
-                        },
-                        {
-                            "type": "chore",
-                            "section": "Chore"
-                        },
-                        {
-                            "type": "docs",
-                            "section": "Documentation"
-                        },
-                        {
-                            "type": "refactor",
-                            "section": "Refactoring"
-                        },
-                        {
-                            "type": "test",
-                            "section": "Tests"
-                        },
-                        {
-                            "type": "style",
-                            "section": "Style"
-                        }
-                    ]
-                }
-            }
-        ],
-        [
-            "@semantic-release/exec",
-            {
-                "prepareCmd": "export NEXT_RELEASE_VERSION=${nextRelease.version} RELEASE_NOTES=\"${nextRelease.notes}\" && node scripts/update-version.js && node scripts/generate-amo-metadata.js && npm run build"
-            }
-        ],
-        [
-            "@semantic-release/exec",
-            {
-                "publishCmd": "if [ -n \"$AMO_JWT_ISSUER\" ] && [ -n \"$AMO_JWT_SECRET\" ]; then web-ext sign --use-submission-api --channel listed --source-dir ./dist --api-key \"$AMO_JWT_ISSUER\" --api-secret \"$AMO_JWT_SECRET\" --amo-metadata ./version-metadata.json; else echo 'AMO credentials not set, skipping AMO publish'; fi"
-            }
-        ],
-        [
-            "@semantic-release/github",
-            {
-                "assets": [
-                    {
-                        "path": "web-ext-artifacts/*.xpi",
-                        "label": "Signed Extension"
-                    }
-                ]
-            }
-        ],
-        [
-            "@semantic-release/git",
-            {
-                "assets": [
-                    "package.json",
-                    "vite.config.ts"
-                ],
-                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-            }
+  "branches": ["master"],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "chore",
+            "release": "patch"
+          },
+          {
+            "type": "docs",
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "release": "patch"
+          },
+          {
+            "type": "test",
+            "release": "patch"
+          }
         ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "feat",
+              "section": "Features"
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fixes"
+            },
+            {
+              "type": "chore",
+              "section": "Chore"
+            },
+            {
+              "type": "docs",
+              "section": "Documentation"
+            },
+            {
+              "type": "refactor",
+              "section": "Refactoring"
+            },
+            {
+              "type": "test",
+              "section": "Tests"
+            },
+            {
+              "type": "style",
+              "section": "Style"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "export NEXT_RELEASE_VERSION=${nextRelease.version} RELEASE_NOTES=\"${nextRelease.notes}\" && node scripts/update-version.cjs && node scripts/generate-amo-metadata.cjs && npm run build"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "publishCmd": "if [ -n \"$AMO_JWT_ISSUER\" ] && [ -n \"$AMO_JWT_SECRET\" ]; then web-ext sign --use-submission-api --channel listed --source-dir ./dist --api-key \"$AMO_JWT_ISSUER\" --api-secret \"$AMO_JWT_SECRET\" --amo-metadata ./version-metadata.json; else echo 'AMO credentials not set, skipping AMO publish'; fi"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "web-ext-artifacts/*.xpi",
+            "label": "Signed Extension"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "vite.config.ts"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
     ]
+  ]
 }
