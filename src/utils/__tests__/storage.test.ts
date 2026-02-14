@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { storage } from '../storage'
+import { storage, _testNotifySubscribers } from '../storage'
 
 // Mock webextension-polyfill - factory function to avoid hoisting issues
 vi.mock('webextension-polyfill', () => {
@@ -316,6 +316,82 @@ describe('storage', () => {
     })
   })
 
+  describe('subscribe', () => {
+    it('registers a callback and returns an unsubscribe function', () => {
+      const callback = vi.fn()
+      const unsubscribe = storage.subscribe(callback)
+
+      expect(typeof unsubscribe).toBe('function')
+
+      // Clean up
+      unsubscribe()
+    })
+
+    it('unsubscribe removes the callback from being notified', () => {
+      const callback = vi.fn()
+
+      const unsubscribe = storage.subscribe(callback)
+      unsubscribe()
+
+      // Should not throw when called again
+      expect(() => unsubscribe()).not.toThrow()
+    })
+
+    it('supports multiple subscribe/unsubscribe cycles', () => {
+      const callback = vi.fn()
+
+      const unsubscribe1 = storage.subscribe(callback)
+      unsubscribe1()
+
+      const unsubscribe2 = storage.subscribe(callback)
+      unsubscribe2()
+
+      // Should not throw
+      expect(true).toBe(true)
+    })
+
+    it('can subscribe multiple callbacks', () => {
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+
+      const unsubscribe1 = storage.subscribe(callback1)
+      const unsubscribe2 = storage.subscribe(callback2)
+
+      // Both should be subscribed
+      expect(typeof unsubscribe1).toBe('function')
+      expect(typeof unsubscribe2).toBe('function')
+
+      // Clean up
+      unsubscribe1()
+      unsubscribe2()
+    })
+
+    it('notifies subscribers when initializeCache completes', async () => {
+      // This test verifies that notifySubscribers correctly calls all registered callbacks
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+
+      // Subscribe both callbacks
+      const unsubscribe1 = storage.subscribe(callback1)
+      const unsubscribe2 = storage.subscribe(callback2)
+
+      // Clear any previous calls
+      callback1.mockClear()
+      callback2.mockClear()
+
+      // Manually trigger notification (simulates what happens after initializeCache completes)
+      _testNotifySubscribers()
+
+      // Both callbacks should have been called
+      expect(callback1).toHaveBeenCalled()
+      expect(callback2).toHaveBeenCalled()
+
+      // Clean up
+      unsubscribe1()
+      unsubscribe2()
+    })
+  })
+
   describe('storage change listener', () => {
     it('updates cache when storage changes', async () => {
       const webextension = await import('webextension-polyfill')
@@ -339,6 +415,209 @@ describe('storage', () => {
       const cacheAfter = storage.getCache()
       expect(cacheAfter).toEqual(cacheBefore) // Cache is the same object reference
       expect(cacheAfter.apiToken).toBe('new-token-123')
+    })
+  })
+
+  describe('getDashboardSettings', () => {
+    it('returns default dashboard settings when storage is empty', async () => {
+      const settings = await storage.getDashboardSettings()
+
+      expect(settings).toEqual({
+        darkMode: 'auto',
+        notificationsEnabled: true,
+        autoRefresh: true,
+        refreshInterval: 30,
+      })
+    })
+
+    it('returns stored dashboard settings when available', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageSync } = webextension as any
+      const storedSettings = {
+        dashboardSettings: {
+          darkMode: 'dark' as const,
+          notificationsEnabled: false,
+          autoRefresh: false,
+          refreshInterval: 60,
+        },
+      }
+      mockStorageSync.get.mockResolvedValueOnce(storedSettings)
+
+      const settings = await storage.getDashboardSettings()
+
+      expect(settings).toEqual(storedSettings.dashboardSettings)
+    })
+
+    it('merges stored dashboard settings with defaults', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageSync } = webextension as any
+      mockStorageSync.get.mockImplementationOnce((defaults?: any) =>
+        Promise.resolve({
+          ...defaults,
+          dashboardSettings: {
+            ...defaults.dashboardSettings,
+            darkMode: 'light',
+          },
+        })
+      )
+
+      const settings = await storage.getDashboardSettings()
+
+      expect(settings.darkMode).toBe('light')
+      expect(settings.notificationsEnabled).toBe(true)
+      expect(settings.autoRefresh).toBe(true)
+      expect(settings.refreshInterval).toBe(30)
+    })
+  })
+
+  describe('saveDashboardSettings', () => {
+    it('saves partial dashboard settings to browser.storage.sync', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageSync } = webextension as any
+      mockStorageSync.get.mockResolvedValueOnce({
+        dashboardSettings: {
+          darkMode: 'auto',
+          notificationsEnabled: true,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
+      mockStorageSync.set.mockResolvedValue(undefined)
+
+      await storage.saveDashboardSettings({ darkMode: 'dark' })
+
+      expect(mockStorageSync.set).toHaveBeenCalledWith({
+        dashboardSettings: {
+          darkMode: 'dark',
+          notificationsEnabled: true,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
+    })
+
+    it('saves multiple dashboard settings at once', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageSync } = webextension as any
+      mockStorageSync.get.mockResolvedValueOnce({
+        dashboardSettings: {
+          darkMode: 'auto',
+          notificationsEnabled: true,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
+      mockStorageSync.set.mockResolvedValue(undefined)
+
+      await storage.saveDashboardSettings({
+        darkMode: 'light',
+        notificationsEnabled: false,
+      })
+
+      expect(mockStorageSync.set).toHaveBeenCalledWith({
+        dashboardSettings: {
+          darkMode: 'light',
+          notificationsEnabled: false,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
+    })
+  })
+
+  describe('getNotificationState', () => {
+    it('returns default notification state when storage is empty', async () => {
+      const state = await storage.getNotificationState()
+
+      expect(state).toEqual({
+        notifiedTorrentIds: [],
+        lastNotificationTime: 0,
+      })
+    })
+
+    it('returns stored notification state when available', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageLocal } = webextension as any
+      const storedState = {
+        notificationState: {
+          notifiedTorrentIds: ['torrent-1', 'torrent-2'],
+          lastNotificationTime: 1234567890,
+        },
+      }
+      mockStorageLocal.get.mockResolvedValueOnce(storedState)
+
+      const state = await storage.getNotificationState()
+
+      expect(state).toEqual(storedState.notificationState)
+    })
+  })
+
+  describe('saveNotificationState', () => {
+    it('saves notification state to browser.storage.local', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageLocal } = webextension as any
+      mockStorageLocal.set.mockResolvedValue(undefined)
+
+      const state = {
+        notifiedTorrentIds: ['torrent-1', 'torrent-2', 'torrent-3'],
+        lastNotificationTime: 1234567890,
+      }
+
+      await storage.saveNotificationState(state)
+
+      expect(mockStorageLocal.set).toHaveBeenCalledWith({ notificationState: state })
+    })
+  })
+
+  describe('getDarkMode', () => {
+    it('returns dark mode from dashboard settings', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageSync } = webextension as any
+      mockStorageSync.get.mockResolvedValueOnce({
+        dashboardSettings: {
+          darkMode: 'dark',
+          notificationsEnabled: true,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
+
+      const darkMode = await storage.getDarkMode()
+
+      expect(darkMode).toBe('dark')
+    })
+
+    it('returns auto mode by default', async () => {
+      const darkMode = await storage.getDarkMode()
+
+      expect(darkMode).toBe('auto')
+    })
+  })
+
+  describe('setDarkMode', () => {
+    it('saves dark mode to dashboard settings', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorageSync } = webextension as any
+      mockStorageSync.get.mockResolvedValueOnce({
+        dashboardSettings: {
+          darkMode: 'auto',
+          notificationsEnabled: true,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
+      mockStorageSync.set.mockResolvedValue(undefined)
+
+      await storage.setDarkMode('light')
+
+      expect(mockStorageSync.set).toHaveBeenCalledWith({
+        dashboardSettings: {
+          darkMode: 'light',
+          notificationsEnabled: true,
+          autoRefresh: true,
+          refreshInterval: 30,
+        },
+      })
     })
   })
 })

@@ -69,3 +69,43 @@ export interface RdUnrestrictLinkResponse {
   download: string
   streamable: number
 }
+
+// Conversion Dashboard Types
+
+export interface TorrentProgress {
+  progress: number // 0-100
+  status: 'downloading' | 'uploading' | 'converting' | 'completed' | 'error' | 'paused'
+  downloadSpeed?: number // bytes/sec
+  uploadSpeed?: number // bytes/sec
+  eta?: number // seconds
+  seeds?: number
+  peers?: number
+}
+
+export interface DownloadLink {
+  url: string
+  filename: string
+  size?: number
+  selected: boolean
+}
+
+export interface NotificationState {
+  notifiedTorrentIds: string[]
+  lastNotificationTime: number
+}
+
+export type DarkMode = 'light' | 'dark' | 'auto'
+
+export interface DashboardSettings {
+  darkMode: DarkMode
+  notificationsEnabled: boolean
+  autoRefresh: boolean
+  refreshInterval: number
+}
+
+export interface ExtendedTorrentItem extends TorrentItem {
+  progress?: TorrentProgress
+  links?: DownloadLink[]
+  addedAt: number
+  lastUpdated: number
+}
