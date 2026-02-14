@@ -51,8 +51,8 @@ export const storage = {
     const settings = await this.getSettings()
     const trimmed = torrents.slice(0, settings.maxListSize)
     await browser.storage.local.set({ torrents: trimmed })
-    // Update cache
-    storageCache.torrents = trimmed
+    // Create new array reference so useSyncExternalStore detects change
+    storageCache.torrents = [...trimmed]
   },
 
   async addTorrent(torrent: TorrentItem): Promise<void> {
@@ -65,8 +65,8 @@ export const storage = {
     const torrents = await this.getTorrents()
     const filtered = torrents.filter(t => t.id !== id)
     await browser.storage.local.set({ torrents: filtered })
-    // Update cache
-    storageCache.torrents = filtered
+    // Create new array reference so useSyncExternalStore detects change
+    storageCache.torrents = [...filtered]
   },
 
   // Cache access for useSyncExternalStore

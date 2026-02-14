@@ -19,7 +19,7 @@ function useStorage<T>(key: string, defaultValue: T): T {
       browser.storage.onChanged.addListener(listener)
       return () => browser.storage.onChanged.removeListener(listener)
     },
-    // Get snapshot
+    // Get snapshot - return cached value
     () => {
       const cache = storage.getCache()
       return (cache[key] as T) ?? defaultValue
