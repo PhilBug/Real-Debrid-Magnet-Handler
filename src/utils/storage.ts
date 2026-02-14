@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import type { TorrentItem, Settings } from './types'
+import type { TorrentItem, Settings, DashboardSettings, NotificationState } from './types'
 
 // In-memory cache for useSyncExternalStore sync snapshot requirement
 const storageCache: Record<string, any> = {}
@@ -72,5 +72,58 @@ export const storage = {
   // Cache access for useSyncExternalStore
   getCache(): Record<string, any> {
     return storageCache
+  },
+
+  // Dashboard settings storage
+  async getDashboardSettings(): Promise<DashboardSettings> {
+    const result = await browser.storage.sync.get({
+      dashboardSettings: {
+        darkMode: 'auto' as const,
+        notificationsEnabled: true,
+        autoRefresh: true,
+        refreshInterval: 30,
+      },
+    })
+    return result.dashboardSettings as DashboardSettings
+  },
+
+  async saveDashboardSettings(settings: Partial<DashboardSettings>): Promise<void> {
+    const current = await this.getDashboardSettings()
+    const updated = { ...current, ...settings }
+    await browser.storage.sync.set({ dashboardSettings: updated })
+    // Update cache
+    storageCache.dashboardSettings = updated
+  },
+
+  // Notification state storage
+  async getNotificationState(): Promise<NotificationState> {
+    const result = await browser.storage.local.get({
+      notificationState: {
+        notifiedTorrentIds: [],
+        lastNotificationTime: 0,
+      },
+    })
+    return (
+      (result.notificationState as NotificationState) || {
+        notifiedTorrentIds: [],
+        lastNotificationTime: 0,
+      }
+    )
+  },
+
+  async saveNotificationState(state: NotificationState): Promise<void> {
+    await browser.storage.local.set({ notificationState: state })
+    // Update cache
+    storageCache.notificationState = state
+  },
+
+  // Dark mode preference (stored separately for quick access)
+  async getDarkMode(): Promise<'light' | 'dark' | 'auto'> {
+    const settings = await this.getDashboardSettings()
+    return settings.darkMode
+  },
+
+  async setDarkMode(mode: 'light' | 'dark' | 'auto'): Promise<void> {
+    await this.saveDashboardSettings({ darkMode: mode })
   },
 }

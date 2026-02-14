@@ -44,6 +44,12 @@ export default defineConfig({
           '48': 'icons/icon-48.png',
           '128': 'icons/icon-128.png',
         },
+        web_accessible_resources: [
+          {
+            resources: ['src/dashboard/dashboard.html'],
+            matches: ['<all_urls>'],
+          },
+        ],
       },
     }) as any,
   ],
