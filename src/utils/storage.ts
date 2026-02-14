@@ -4,11 +4,23 @@ import type { TorrentItem, Settings, DashboardSettings, NotificationState } from
 // In-memory cache for useSyncExternalStore sync snapshot requirement
 const storageCache: Record<string, any> = {}
 
+// Subscribers for cache initialization and changes
+const cacheSubscribers: Set<() => void> = new Set()
+
+// Notify all subscribers of cache changes
+function notifySubscribers(): void {
+  for (const callback of cacheSubscribers) {
+    callback()
+  }
+}
+
 // Initialize cache on load
 async function initializeCache() {
   const localData = await browser.storage.local.get(null)
   const syncData = await browser.storage.sync.get(null)
   Object.assign(storageCache, localData, syncData)
+  // Notify subscribers after cache is populated
+  notifySubscribers()
 }
 
 // Listen for storage changes to update cache
@@ -20,6 +32,9 @@ browser.storage.onChanged.addListener(changes => {
 
 // Initialize cache
 initializeCache()
+
+// Export for testing
+export const _testNotifySubscribers = notifySubscribers
 
 export const storage = {
   // Sync storage (settings)
@@ -72,6 +87,12 @@ export const storage = {
   // Cache access for useSyncExternalStore
   getCache(): Record<string, any> {
     return storageCache
+  },
+
+  // Subscribe to cache changes (including initialization)
+  subscribe(callback: () => void): () => void {
+    cacheSubscribers.add(callback)
+    return () => cacheSubscribers.delete(callback)
   },
 
   // Dashboard settings storage

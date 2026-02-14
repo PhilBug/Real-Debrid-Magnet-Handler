@@ -9,7 +9,7 @@ import { DarkModeToggle } from './DarkModeToggle'
 // Custom hook for storage synchronization using useSyncExternalStore
 function useStorage<T>(key: string, defaultValue: T): T {
   const snapshot = useSyncExternalStore(
-    // Subscribe
+    // Subscribe - listen to both storage changes and cache initialization
     callback => {
       const listener = (changes: { [key: string]: { newValue?: unknown } }, areaName: string) => {
         if (areaName === 'local' && changes[key]) {
@@ -17,7 +17,12 @@ function useStorage<T>(key: string, defaultValue: T): T {
         }
       }
       browser.storage.onChanged.addListener(listener)
-      return () => browser.storage.onChanged.removeListener(listener)
+      // Also subscribe to cache initialization notifications
+      const unsubscribeCache = storage.subscribe(callback)
+      return () => {
+        browser.storage.onChanged.removeListener(listener)
+        unsubscribeCache()
+      }
     },
     // Get snapshot - return cached value
     () => {

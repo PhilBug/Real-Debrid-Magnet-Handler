@@ -26,6 +26,7 @@ vi.mock('../../utils/storage', () => ({
     removeTorrent: vi.fn(),
     getDarkMode: vi.fn(() => Promise.resolve('auto')),
     setDarkMode: vi.fn(() => Promise.resolve()),
+    subscribe: vi.fn(() => vi.fn()), // Returns unsubscribe function
   },
 }))
 

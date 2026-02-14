@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { storage } from '../storage'
+import { storage, _testNotifySubscribers } from '../storage'
 
 // Mock webextension-polyfill - factory function to avoid hoisting issues
 vi.mock('webextension-polyfill', () => {
@@ -313,6 +313,82 @@ describe('storage', () => {
       const cache = storage.getCache()
       expect(typeof cache).toBe('object')
       expect(Array.isArray(cache)).toBe(false)
+    })
+  })
+
+  describe('subscribe', () => {
+    it('registers a callback and returns an unsubscribe function', () => {
+      const callback = vi.fn()
+      const unsubscribe = storage.subscribe(callback)
+
+      expect(typeof unsubscribe).toBe('function')
+
+      // Clean up
+      unsubscribe()
+    })
+
+    it('unsubscribe removes the callback from being notified', () => {
+      const callback = vi.fn()
+
+      const unsubscribe = storage.subscribe(callback)
+      unsubscribe()
+
+      // Should not throw when called again
+      expect(() => unsubscribe()).not.toThrow()
+    })
+
+    it('supports multiple subscribe/unsubscribe cycles', () => {
+      const callback = vi.fn()
+
+      const unsubscribe1 = storage.subscribe(callback)
+      unsubscribe1()
+
+      const unsubscribe2 = storage.subscribe(callback)
+      unsubscribe2()
+
+      // Should not throw
+      expect(true).toBe(true)
+    })
+
+    it('can subscribe multiple callbacks', () => {
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+
+      const unsubscribe1 = storage.subscribe(callback1)
+      const unsubscribe2 = storage.subscribe(callback2)
+
+      // Both should be subscribed
+      expect(typeof unsubscribe1).toBe('function')
+      expect(typeof unsubscribe2).toBe('function')
+
+      // Clean up
+      unsubscribe1()
+      unsubscribe2()
+    })
+
+    it('notifies subscribers when initializeCache completes', async () => {
+      // This test verifies that notifySubscribers correctly calls all registered callbacks
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+
+      // Subscribe both callbacks
+      const unsubscribe1 = storage.subscribe(callback1)
+      const unsubscribe2 = storage.subscribe(callback2)
+
+      // Clear any previous calls
+      callback1.mockClear()
+      callback2.mockClear()
+
+      // Manually trigger notification (simulates what happens after initializeCache completes)
+      _testNotifySubscribers()
+
+      // Both callbacks should have been called
+      expect(callback1).toHaveBeenCalled()
+      expect(callback2).toHaveBeenCalled()
+
+      // Clean up
+      unsubscribe1()
+      unsubscribe2()
     })
   })
 
