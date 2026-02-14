@@ -213,9 +213,52 @@ function Popup() {
     return 'Unknown status'
   }
 
+  // Open dashboard in new tab
+  const openDashboard = async () => {
+    try {
+      const dashboardUrl = browser.runtime.getURL('src/dashboard/dashboard.html')
+      await browser.tabs.create({ url: dashboardUrl })
+    } catch (error) {
+      console.error('Failed to open dashboard:', error)
+    }
+  }
+
+  // Calculate conversion counts for mini-summary
+  const conversionCounts = {
+    processing: torrents.filter(t => t.status === 'processing').length,
+    ready: torrents.filter(t => t.status === 'ready').length,
+    failed: torrents.filter(t => t.status === 'error' || t.status === 'timeout').length,
+  }
+
   return (
     <div className="w-[400px] p-4 bg-gray-50 min-h-[300px]">
-      <h1 className="text-xl font-bold mb-4 text-gray-900">Real-Debrid Magnet Handler</h1>
+      <div className="flex justify-between items-start mb-4">
+        <h1 className="text-xl font-bold text-gray-900">Real-Debrid Magnet Handler</h1>
+        <button
+          onClick={openDashboard}
+          className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+          title="Open full dashboard"
+        >
+          Open Dashboard
+        </button>
+      </div>
+
+      {/* Mini-summary of conversions */}
+      {torrents.length > 0 && (
+        <div className="mb-4 p-3 bg-white rounded border border-gray-200">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">
+              ⏳ Processing: <strong>{conversionCounts.processing}</strong>
+            </span>
+            <span className="text-green-600">
+              📄 Ready: <strong>{conversionCounts.ready}</strong>
+            </span>
+            <span className="text-red-600">
+              ❌ Failed: <strong>{conversionCounts.failed}</strong>
+            </span>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="mb-4">
         <input
@@ -275,6 +318,15 @@ function Popup() {
         {torrents.length === 0 && (
           <div className="text-gray-500 text-center py-8 text-sm">
             No torrents yet. Paste a magnet link above!
+          </div>
+        )}
+
+        {/* Link to dashboard when there are active conversions */}
+        {torrents.length > 0 && (
+          <div className="mt-3 text-center">
+            <button onClick={openDashboard} className="text-blue-600 text-sm hover:underline">
+              View all {torrents.length} conversion{torrents.length !== 1 ? 's' : ''} in Dashboard →
+            </button>
           </div>
         )}
       </div>

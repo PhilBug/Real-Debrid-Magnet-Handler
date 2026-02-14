@@ -2,6 +2,11 @@ import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import { rdAPI } from '../utils/realdebrid-api'
 import { syncContextMenu, initContextMenuListener } from './context-menu'
+import {
+  notifyTorrentStatusChange,
+  showBatchCompleteNotification,
+  clearCompletedNotifications,
+} from '../utils/notifications'
 import type { TorrentItem } from '../utils/types'
 
 const POLL_ALARM = 'poll-torrents'
@@ -187,6 +192,76 @@ async function handleGetTorrentInfo(torrentId: string) {
   }
 }
 
+// Retry all failed torrents
+async function handleRetryFailed() {
+  const torrents = await storage.getTorrents()
+  const failedTorrents = torrents.filter(t => t.status === 'error' || t.status === 'timeout')
+
+  if (failedTorrents.length === 0) {
+    return { success: true, retried: 0 }
+  }
+
+  for (const torrent of failedTorrents) {
+    torrent.status = 'processing'
+    torrent.lastRetry = Date.now()
+    torrent.retryCount += 1
+  }
+
+  await storage.saveTorrents(torrents)
+
+  return { success: true, retried: failedTorrents.length }
+}
+
+// Clear completed torrents
+async function handleClearCompleted() {
+  const torrents = await storage.getTorrents()
+  const completedTorrents = torrents.filter(t => t.status === 'ready')
+
+  if (completedTorrents.length === 0) {
+    return { success: true, cleared: 0 }
+  }
+
+  const completedIds = completedTorrents.map(t => t.id)
+  const remainingTorrents = torrents.filter(t => t.status !== 'ready')
+
+  await storage.saveTorrents(remainingTorrents)
+
+  // Clear notification state for completed torrents
+  await clearCompletedNotifications(completedIds)
+
+  return { success: true, cleared: completedTorrents.length }
+}
+
+// Get torrent progress (for dashboard updates)
+async function handleGetTorrentProgress(torrentId: string) {
+  try {
+    const info = await rdAPI.getTorrentInfo(torrentId)
+    return {
+      success: true,
+      progress: info.progress,
+      status: info.status,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to get torrent progress',
+    }
+  }
+}
+
+// Request notification permission
+async function handleNotificationPermissionRequest() {
+  try {
+    const permission = await Notification.requestPermission()
+    return { success: true, granted: permission === 'granted' }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to request permission',
+    }
+  }
+}
+
 // Check pending torrents
 async function checkPendingTorrents() {
   const settings = await storage.getSettings()
@@ -199,6 +274,8 @@ async function checkPendingTorrents() {
 
   const maxRetryDuration = settings.maxRetryDuration || DEFAULT_MAX_RETRY_DURATION
   let hasChanges = false
+  const newlyCompleted: string[] = []
+  const newlyFailed: string[] = []
 
   for (const torrent of processingTorrents) {
     const elapsed = (Date.now() - torrent.addedAt) / 1000
@@ -206,6 +283,7 @@ async function checkPendingTorrents() {
     // Check for timeout
     if (elapsed > maxRetryDuration) {
       torrent.status = 'timeout'
+      newlyFailed.push(torrent.id)
       hasChanges = true
       continue
     }
@@ -245,9 +323,11 @@ async function checkPendingTorrents() {
         } else {
           torrent.downloadUrl = null
         }
+        newlyCompleted.push(torrent.id)
         hasChanges = true
       } else if (info.status === 'error' || info.status === 'dead') {
         torrent.status = 'error'
+        newlyFailed.push(torrent.id)
         hasChanges = true
       } else if (info.filename && torrent.filename === 'Processing...') {
         // Update filename when available
@@ -262,6 +342,31 @@ async function checkPendingTorrents() {
 
   if (hasChanges) {
     await storage.saveTorrents(torrents)
+
+    // Send notifications for status changes
+    for (const torrentId of newlyCompleted) {
+      const torrent = torrents.find(t => t.id === torrentId)
+      if (torrent) {
+        await notifyTorrentStatusChange(
+          torrentId,
+          torrent.filename,
+          'ready',
+          torrent.downloadUrl ? 1 : 0
+        )
+      }
+    }
+
+    for (const torrentId of newlyFailed) {
+      const torrent = torrents.find(t => t.id === torrentId)
+      if (torrent) {
+        await notifyTorrentStatusChange(torrentId, torrent.filename, torrent.status)
+      }
+    }
+
+    // Show batch notification if multiple completed/failed
+    if (newlyCompleted.length + newlyFailed.length > 1) {
+      await showBatchCompleteNotification(newlyCompleted.length, newlyFailed.length)
+    }
   }
 }
 
@@ -279,6 +384,7 @@ browser.runtime.onMessage.addListener(async (message: unknown) => {
     magnetLink?: string
     torrentId?: string
     selectedFiles?: string
+    torrentIds?: string[]
   }
 
   if (msg.type === 'ADD_MAGNET') {
@@ -289,6 +395,14 @@ browser.runtime.onMessage.addListener(async (message: unknown) => {
     return await handleSelectFiles(msg.torrentId || '', msg.selectedFiles || 'all')
   } else if (msg.type === 'GET_TORRENT_INFO') {
     return await handleGetTorrentInfo(msg.torrentId || '')
+  } else if (msg.type === 'RETRY_FAILED') {
+    return await handleRetryFailed()
+  } else if (msg.type === 'CLEAR_COMPLETED') {
+    return await handleClearCompleted()
+  } else if (msg.type === 'GET_TORRENT_PROGRESS') {
+    return await handleGetTorrentProgress(msg.torrentId || '')
+  } else if (msg.type === 'NOTIFICATION_PERMISSION_REQUEST') {
+    return await handleNotificationPermissionRequest()
   }
 })
 

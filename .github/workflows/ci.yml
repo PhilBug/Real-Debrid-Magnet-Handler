@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          npm run test:coverage -- --run --reporter=verbose 2>&1 | tail -n 20 >> $GITHUB_STEP_SUMMARY || true
+          npm run test:coverage -- --run --reporter=verbose --no-color 2>&1 | tail -n 20 >> $GITHUB_STEP_SUMMARY || true
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   lint:
