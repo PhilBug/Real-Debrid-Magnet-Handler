@@ -23,5 +23,6 @@ Before finishing any task or committing changes, you MUST execute the following 
 2. **Verify Tests**: Run `npm test -- --run` to ensure all tests pass (non-interactive).
 3. **Check Coverage**: Run `npm run test:coverage -- --run` and confirm 100% test coverage.
 4. **Format Code**: Run `npm run format` to ensure code style compliance.
+5. **Final build**: Run `npm run build` to ensure the project builds successfully.
 
 **Constraint**: Do not consider work finished until all tests pass, coverage is 100%, and code is formatted.
