@@ -6,6 +6,8 @@ import {
   isNotificationPermissionGranted,
 } from '../utils/notifications'
 import type { DashboardSettings } from '../utils/types'
+import { Button } from '../components/common/Button'
+import { Icon } from '../components/common/Icon'
 
 interface NotificationManagerProps {
   className?: string
@@ -125,7 +127,9 @@ export const NotificationManager: React.FC<NotificationManagerProps> = ({ classN
       {showPermissionRequest && permission !== 'granted' && (
         <div className="notification-permission-banner">
           <div className="notification-permission-content">
-            <div className="notification-permission-icon">🔔</div>
+            <div className="notification-permission-icon">
+              <Icon name="file" size="lg" />
+            </div>
             <div className="notification-permission-text">
               <h3 className="notification-permission-title">Enable Notifications</h3>
               <p className="notification-permission-description">
@@ -134,22 +138,22 @@ export const NotificationManager: React.FC<NotificationManagerProps> = ({ classN
             </div>
           </div>
           <div className="notification-permission-actions">
-            <button
-              type="button"
-              className="notification-permission-button notification-permission-button-primary"
+            <Button
+              variant="primary"
+              size="md"
               onClick={handleRequestPermission}
-              disabled={isRequesting}
+              loading={isRequesting}
             >
               {isRequesting ? 'Requesting...' : 'Allow Notifications'}
-            </button>
-            <button
-              type="button"
-              className="notification-permission-button notification-permission-button-secondary"
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
               onClick={handleDismissPermissionRequest}
               disabled={isRequesting}
             >
               Not Now
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -159,7 +163,11 @@ export const NotificationManager: React.FC<NotificationManagerProps> = ({ classN
         <label className="notification-toggle-label" htmlFor="notifications-toggle">
           <span className="notification-toggle-text">Notifications</span>
           <span className="notification-toggle-status">
-            {permission === 'granted' ? '✓' : permission === 'denied' ? '✗' : ''}
+            {permission === 'granted' ? (
+              <Icon name="check-circle" size="sm" className="notification-status-icon--success" />
+            ) : permission === 'denied' ? (
+              <Icon name="x-circle" size="sm" className="notification-status-icon--error" />
+            ) : null}
           </span>
         </label>
         <button
@@ -183,7 +191,9 @@ export const NotificationManager: React.FC<NotificationManagerProps> = ({ classN
       {/* Permission Status Indicator */}
       {permission === 'denied' && dashboardSettings.notificationsEnabled && (
         <div className="notification-permission-denied">
-          <span className="notification-permission-denied-icon">⚠️</span>
+          <span className="notification-permission-denied-icon">
+            <Icon name="x-circle" size="sm" />
+          </span>
           <span className="notification-permission-denied-text">
             Notifications are blocked in browser settings
           </span>

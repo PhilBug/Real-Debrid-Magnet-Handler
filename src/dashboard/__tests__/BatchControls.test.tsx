@@ -56,7 +56,7 @@ describe('BatchControls', () => {
     })
 
     it('shows icons on buttons', () => {
-      render(
+      const { container } = render(
         <BatchControls
           failedCount={1}
           completedCount={1}
@@ -65,8 +65,9 @@ describe('BatchControls', () => {
         />
       )
 
-      expect(screen.getByText('🔄')).toBeInTheDocument()
-      expect(screen.getByText('🗑️')).toBeInTheDocument()
+      // Icons are now SVG elements, not emoji
+      const icons = container.querySelectorAll('svg.icon')
+      expect(icons.length).toBeGreaterThanOrEqual(2)
     })
 
     it('does not render retry button when onRetryFailed not provided', () => {

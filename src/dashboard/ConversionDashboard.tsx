@@ -2,6 +2,7 @@ import React, { useSyncExternalStore, useCallback, useMemo } from 'react'
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import type { ExtendedTorrentItem, TorrentItem } from '../utils/types'
+import { Icon } from '../components/common/Icon'
 import { TorrentCard } from './TorrentCard'
 import { BatchControls } from './BatchControls'
 import { DarkModeToggle } from './DarkModeToggle'
@@ -45,13 +46,18 @@ export const ConversionDashboard: React.FC = () => {
     }))
   }, [torrents])
 
-  // Calculate counts for batch controls
-  const { failedCount, completedCount } = useMemo(() => {
-    return {
-      failedCount: extendedTorrents.filter(t => t.status === 'error' || t.status === 'timeout')
-        .length,
-      completedCount: extendedTorrents.filter(t => t.status === 'ready').length,
-    }
+  // Calculate counts for batch controls and stats
+  const { total, processing, ready, failedCount, completedCount } = useMemo(() => {
+    const total = extendedTorrents.length
+    const processing = extendedTorrents.filter(t => t.status === 'processing').length
+    const ready = extendedTorrents.filter(t => t.status === 'ready').length
+    const failedTorrents = extendedTorrents.filter(
+      t => t.status === 'error' || t.status === 'timeout'
+    )
+    const failedCount = failedTorrents.length
+    const completedCount = ready
+
+    return { total, processing, ready, failedCount, completedCount }
   }, [extendedTorrents])
 
   // Handle retry all failed
@@ -133,25 +139,24 @@ export const ConversionDashboard: React.FC = () => {
 
   return (
     <div className="conversion-dashboard">
+      {/* Header */}
       <header className="dashboard-header">
         <div className="dashboard-header-content">
-          <h1 className="dashboard-title">Conversion Dashboard</h1>
+          <h1 className="dashboard-title">REAL-DEBRID HANDLER</h1>
           <div className="dashboard-stats">
             <span className="dashboard-stat">
-              <span className="dashboard-stat-value">{extendedTorrents.length}</span>
+              <span className="dashboard-stat-value">{total}</span>
               <span className="dashboard-stat-label">Total</span>
             </span>
-            <span className="dashboard-stat">
-              <span className="dashboard-stat-value">
-                {extendedTorrents.filter(t => t.status === 'processing').length}
-              </span>
+            <span className="dashboard-stat dashboard-stat--processing">
+              <span className="dashboard-stat-value">{processing}</span>
               <span className="dashboard-stat-label">Processing</span>
             </span>
-            <span className="dashboard-stat">
-              <span className="dashboard-stat-value">{completedCount}</span>
+            <span className="dashboard-stat dashboard-stat--ready">
+              <span className="dashboard-stat-value">{ready}</span>
               <span className="dashboard-stat-label">Ready</span>
             </span>
-            <span className="dashboard-stat">
+            <span className="dashboard-stat dashboard-stat--failed">
               <span className="dashboard-stat-value">{failedCount}</span>
               <span className="dashboard-stat-label">Failed</span>
             </span>
@@ -160,6 +165,7 @@ export const ConversionDashboard: React.FC = () => {
         <DarkModeToggle className="dashboard-dark-mode-toggle" />
       </header>
 
+      {/* Batch Controls */}
       <BatchControls
         failedCount={failedCount}
         completedCount={completedCount}
@@ -167,10 +173,13 @@ export const ConversionDashboard: React.FC = () => {
         onClearCompleted={handleClearCompleted}
       />
 
+      {/* Main Content */}
       <main className="dashboard-main">
         {extendedTorrents.length === 0 ? (
           <div className="dashboard-empty-state">
-            <div className="empty-state-icon">📦</div>
+            <div className="empty-state-icon">
+              <Icon name="download" size="xl" />
+            </div>
             <h2 className="empty-state-title">No torrents yet</h2>
             <p className="empty-state-description">
               Paste a magnet link in the popup to start converting torrents.

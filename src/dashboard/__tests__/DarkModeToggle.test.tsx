@@ -74,7 +74,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Light mode')).toBeInTheDocument()
+        expect(screen.getByText('Light')).toBeInTheDocument()
       })
     })
 
@@ -84,7 +84,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Dark mode')).toBeInTheDocument()
+        expect(screen.getByText('Dark')).toBeInTheDocument()
       })
     })
 
@@ -94,11 +94,11 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Light mode')).toBeInTheDocument()
+        expect(screen.getByText('Light')).toBeInTheDocument()
       })
 
       const button = screen.getByRole('button')
-      expect(button.textContent).toContain('Light mode')
+      expect(button.textContent).toContain('Light')
     })
 
     it('shows correct icon for dark mode', async () => {
@@ -107,7 +107,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Dark mode')).toBeInTheDocument()
+        expect(screen.getByText('Dark')).toBeInTheDocument()
       })
     })
 
@@ -235,7 +235,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Light mode')).toBeInTheDocument()
+        expect(screen.getByText('Light')).toBeInTheDocument()
       })
 
       const button = screen.getByRole('button', { name: /Toggle theme/ })
@@ -266,7 +266,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Dark mode')).toBeInTheDocument()
+        expect(screen.getByText('Dark')).toBeInTheDocument()
       })
 
       const button = screen.getByRole('button', { name: /Toggle theme/ })
@@ -379,7 +379,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Light mode')).toBeInTheDocument()
+        expect(screen.getByText('Light')).toBeInTheDocument()
       })
 
       // System preference change should not affect light mode
@@ -403,7 +403,7 @@ describe('DarkModeToggle', () => {
       render(<DarkModeToggle />)
 
       await waitFor(() => {
-        expect(screen.getByText('Dark mode')).toBeInTheDocument()
+        expect(screen.getByText('Dark')).toBeInTheDocument()
       })
 
       // System preference change should not affect dark mode
@@ -419,7 +419,7 @@ describe('DarkModeToggle', () => {
 
       await waitFor(() => {
         const button = screen.getByRole('button', { name: /Toggle theme/ })
-        expect(button).toHaveAttribute('aria-label', 'Toggle theme (current: Light mode)')
+        expect(button).toHaveAttribute('aria-label', 'Toggle theme (current: Light)')
       })
     })
 
@@ -430,7 +430,7 @@ describe('DarkModeToggle', () => {
 
       await waitFor(() => {
         const button = screen.getByRole('button', { name: /Toggle theme/ })
-        expect(button).toHaveAttribute('title', 'Dark mode')
+        expect(button).toHaveAttribute('title', 'Dark')
       })
     })
   })

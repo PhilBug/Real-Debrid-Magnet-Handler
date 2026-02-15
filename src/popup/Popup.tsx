@@ -4,7 +4,29 @@ import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import { FileSelector } from './FileSelector'
 import type { TorrentItem, RdTorrentInfo } from '../utils/types'
-import '../styles/main.css'
+import { Button, Input, Badge, Icon, ProgressBar } from '../components/common'
+
+/**
+ * Get the badge variant based on torrent status
+ */
+const getStatusBadgeVariant = (
+  status: TorrentItem['status']
+): 'processing' | 'ready' | 'error' | 'timeout' | 'selecting' => {
+  switch (status) {
+    case 'processing':
+      return 'processing'
+    case 'ready':
+      return 'ready'
+    case 'error':
+      return 'error'
+    case 'timeout':
+      return 'timeout'
+    case 'selecting_files':
+      return 'selecting'
+    default:
+      return 'processing'
+  }
+}
 
 function Popup() {
   const [magnetLink, setMagnetLink] = useState('')
@@ -14,6 +36,19 @@ function Popup() {
   const [torrents, setTorrents] = useState<TorrentItem[]>([])
   const [selectingFilesTorrentId, setSelectingFilesTorrentId] = useState<string | null>(null)
   const [torrentInfoCache, setTorrentInfoCache] = useState<Map<string, RdTorrentInfo>>(new Map())
+  // Initialize dark mode from storage
+  useEffect(() => {
+    const initDarkMode = async () => {
+      // Check system preference for dark mode
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (prefersDark) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
+    initDarkMode()
+  }, [])
 
   useEffect(() => {
     checkToken()
@@ -138,81 +173,6 @@ function Popup() {
     setSelectingFilesTorrentId(null)
   }
 
-  const getStatusIcon = (status: TorrentItem['status']): string => {
-    switch (status) {
-      case 'processing':
-        return '⏳'
-      case 'ready':
-        return '📄'
-      case 'error':
-        return '❌'
-      case 'timeout':
-        return '⏱️'
-      case 'selecting_files':
-        return '📋'
-      default:
-        return '❓'
-    }
-  }
-
-  const getStatusText = (torrent: TorrentItem): React.ReactNode => {
-    if (torrent.status === 'ready' && torrent.downloadUrl) {
-      return (
-        <a
-          href={torrent.downloadUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 text-xs hover:underline break-all"
-        >
-          {torrent.downloadUrl}
-        </a>
-      )
-    }
-    if (torrent.status === 'processing') {
-      return '⏳ Converting...'
-    }
-    if (torrent.status === 'timeout') {
-      return (
-        <span className="text-orange-600 text-xs">
-          ⏱️ Timeout -{' '}
-          <button
-            onClick={() => handleRetry(torrent.id)}
-            className="ml-1 underline hover:no-underline"
-          >
-            Retry
-          </button>
-        </span>
-      )
-    }
-    if (torrent.status === 'error') {
-      return (
-        <span className="text-red-600 text-xs">
-          ❌ Error -{' '}
-          <button
-            onClick={() => handleRetry(torrent.id)}
-            className="ml-1 underline hover:no-underline"
-          >
-            Retry
-          </button>
-        </span>
-      )
-    }
-    if (torrent.status === 'selecting_files') {
-      return (
-        <span className="text-blue-600 text-xs">
-          📋 Select files -{' '}
-          <button
-            onClick={() => openFileSelector(torrent.id)}
-            className="ml-1 underline hover:no-underline"
-          >
-            Choose
-          </button>
-        </span>
-      )
-    }
-    return 'Unknown status'
-  }
-
   // Open dashboard in new tab
   const openDashboard = async () => {
     try {
@@ -223,7 +183,16 @@ function Popup() {
     }
   }
 
-  // Calculate conversion counts for mini-summary
+  // Open settings page
+  const openSettings = async () => {
+    try {
+      await browser.runtime.openOptionsPage()
+    } catch (error) {
+      console.error('Failed to open settings:', error)
+    }
+  }
+
+  // Calculate conversion counts for status bar
   const conversionCounts = {
     processing: torrents.filter(t => t.status === 'processing').length,
     ready: torrents.filter(t => t.status === 'ready').length,
@@ -231,101 +200,200 @@ function Popup() {
   }
 
   return (
-    <div className="w-[400px] p-4 bg-gray-50 min-h-[300px]">
-      <div className="flex justify-between items-start mb-4">
-        <h1 className="text-xl font-bold text-gray-900">Real-Debrid Magnet Handler</h1>
-        <button
-          onClick={openDashboard}
-          className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
-          title="Open full dashboard"
-        >
-          Open Dashboard
-        </button>
-      </div>
+    <div className="popup">
+      {/* Header */}
+      <header className="popup__header">
+        <h1 className="popup__title">
+          <span className="popup__title-prefix">rd://</span>
+          <span>Real-Debrid Handler</span>
+        </h1>
+        <div className="popup__header-actions">
+          <Button variant="ghost" size="sm" onClick={openSettings} aria-label="Open settings">
+            <Icon name="sun" size="md" aria-label="Settings" />
+          </Button>
+        </div>
+      </header>
 
-      {/* Mini-summary of conversions */}
-      {torrents.length > 0 && (
-        <div className="mb-4 p-3 bg-white rounded border border-gray-200">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">
-              ⏳ Processing: <strong>{conversionCounts.processing}</strong>
-            </span>
-            <span className="text-green-600">
-              📄 Ready: <strong>{conversionCounts.ready}</strong>
-            </span>
-            <span className="text-red-600">
-              ❌ Failed: <strong>{conversionCounts.failed}</strong>
-            </span>
+      {/* Magnet Input Section */}
+      <section className="popup__input-section">
+        <form onSubmit={handleSubmit}>
+          <Input
+            terminal
+            placeholder="paste_magnet_link_here..."
+            value={magnetLink}
+            onChange={e => setMagnetLink(e.target.value)}
+            disabled={loading}
+            aria-label="Magnet link input"
+          />
+          <div className="popup__input-row">
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              loading={loading}
+              disabled={!hasToken}
+            >
+              {loading ? 'Converting...' : 'Convert'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={openSettings}
+              aria-label="Open settings"
+            >
+              <Icon name="sun" size="md" />
+            </Button>
           </div>
+        </form>
+      </section>
+
+      {/* Status Bar */}
+      {torrents.length > 0 && (
+        <div className="popup__status-bar">
+          <div className="popup__status-item">
+            <Badge variant="processing" size="sm">
+              {conversionCounts.processing} processing
+            </Badge>
+          </div>
+          <div className="popup__status-item">
+            <Badge variant="ready" size="sm">
+              {conversionCounts.ready} ready
+            </Badge>
+          </div>
+          {conversionCounts.failed > 0 && (
+            <div className="popup__status-item">
+              <Badge variant="error" size="sm">
+                {conversionCounts.failed} error
+              </Badge>
+            </div>
+          )}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mb-4">
-        <input
-          type="text"
-          value={magnetLink}
-          onChange={e => setMagnetLink(e.target.value)}
-          placeholder="Paste magnet link here..."
-          className="w-full p-2 border border-gray-300 rounded mb-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          disabled={loading}
-        />
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-blue-600 text-white p-2 rounded font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? 'Converting...' : 'Convert'}
-          </button>
-          <button
-            type="button"
-            onClick={() => browser.runtime.openOptionsPage()}
-            className="p-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-            aria-label="Settings"
-          >
-            ⚙️
-          </button>
-        </div>
-      </form>
-
+      {/* Error Message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 text-sm">
+        <div className="popup__error" role="alert">
           {error}
         </div>
       )}
 
-      <div className="max-h-96 overflow-y-auto space-y-2">
-        {torrents.map(torrent => (
-          <div key={torrent.id} className="bg-white p-3 rounded shadow border border-gray-200">
-            <div className="flex justify-between items-start gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm text-gray-900 truncate">
-                  {getStatusIcon(torrent.status)} {torrent.filename}
-                </div>
-                <div className="mt-1 text-xs text-gray-600">{getStatusText(torrent)}</div>
-              </div>
-              <button
-                onClick={() => handleRemove(torrent.id)}
-                className="text-red-500 hover:text-red-700 text-lg leading-none"
-                aria-label="Remove torrent"
-              >
-                ×
-              </button>
+      {/* Torrent List */}
+      <div className="popup__torrent-list">
+        {torrents.length === 0 ? (
+          <div className="popup__empty-state">
+            <div className="popup__empty-icon">
+              <Icon name="download" size="xl" />
             </div>
+            <p className="popup__empty-text">No torrents yet. Paste a magnet link above!</p>
           </div>
-        ))}
+        ) : (
+          torrents.map(torrent => (
+            <div key={torrent.id} className="popup__torrent-card">
+              <div className="popup__torrent-header">
+                <div className="popup__torrent-info">
+                  <div className="popup__torrent-filename" title={torrent.filename}>
+                    {torrent.filename}
+                  </div>
+                  <div className="popup__torrent-status">
+                    <Badge
+                      variant={getStatusBadgeVariant(torrent.status)}
+                      size="sm"
+                      icon={
+                        torrent.status === 'processing' ? <Icon name="spinner" size="sm" /> : null
+                      }
+                    >
+                      {torrent.status === 'processing' && 'Processing'}
+                      {torrent.status === 'ready' && 'Ready'}
+                      {torrent.status === 'error' && 'Error'}
+                      {torrent.status === 'timeout' && 'Timeout'}
+                      {torrent.status === 'selecting_files' && 'Select Files'}
+                    </Badge>
+                  </div>
 
-        {torrents.length === 0 && (
-          <div className="text-gray-500 text-center py-8 text-sm">
-            No torrents yet. Paste a magnet link above!
-          </div>
+                  {/* Progress bar for processing torrents - shown when status is processing */}
+                  {torrent.status === 'processing' && (
+                    <div className="popup__torrent-progress">
+                      <ProgressBar value={0} variant="downloading" size="sm" indeterminate />
+                    </div>
+                  )}
+
+                  {/* Download link for ready torrents */}
+                  {torrent.status === 'ready' && torrent.downloadUrl && (
+                    <a
+                      href={torrent.downloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="popup__torrent-download-link"
+                      style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--accent-primary)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'block',
+                        marginTop: 'var(--space-1)',
+                      }}
+                    >
+                      {torrent.downloadUrl}
+                    </a>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="popup__torrent-actions">
+                    {(torrent.status === 'error' || torrent.status === 'timeout') && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRetry(torrent.id)}
+                        leftIcon={<Icon name="refresh" size="sm" />}
+                      >
+                        Retry
+                      </Button>
+                    )}
+                    {torrent.status === 'ready' && torrent.downloadUrl && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(torrent.downloadUrl!)
+                        }}
+                        leftIcon={<Icon name="copy" size="sm" />}
+                      >
+                        Copy Link
+                      </Button>
+                    )}
+                    {torrent.status === 'selecting_files' && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => openFileSelector(torrent.id)}
+                      >
+                        Choose Files
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Remove button */}
+                <button
+                  type="button"
+                  className="popup__torrent-remove"
+                  onClick={() => handleRemove(torrent.id)}
+                  aria-label="Remove torrent"
+                >
+                  <Icon name="x" size="md" />
+                </button>
+              </div>
+            </div>
+          ))
         )}
 
-        {/* Link to dashboard when there are active conversions */}
+        {/* Footer link to dashboard */}
         {torrents.length > 0 && (
-          <div className="mt-3 text-center">
-            <button onClick={openDashboard} className="text-blue-600 text-sm hover:underline">
-              View all {torrents.length} conversion{torrents.length !== 1 ? 's' : ''} in Dashboard →
+          <div className="popup__footer">
+            <button type="button" onClick={openDashboard} className="popup__footer-link">
+              Open Full Dashboard
+              <Icon name="external-link" size="sm" />
             </button>
           </div>
         )}
@@ -333,8 +401,8 @@ function Popup() {
 
       {/* File Selector Modal */}
       {selectingFilesTorrentId && torrentInfoCache.get(selectingFilesTorrentId) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="w-[500px] max-h-[80vh] overflow-y-auto">
+        <div className="popup__file-selector-overlay">
+          <div className="popup__file-selector-content">
             <FileSelector
               torrentInfo={torrentInfoCache.get(selectingFilesTorrentId)!}
               onConfirm={selectedFiles =>

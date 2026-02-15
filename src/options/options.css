@@ -1,0 +1,251 @@
+/**
+ * Options Page Styles - Industrial Terminal Design System
+ *
+ * Styles specific to the Options/Settings page.
+ * Follows the 500px max-width layout specification.
+ */
+
+/* Root container */
+.options {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background: var(--color-surface-primary);
+  min-height: 100vh;
+}
+
+/* Header */
+.options__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.options__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.options__prompt {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-accent-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Form sections */
+.options__section {
+  margin-bottom: var(--space-6);
+}
+
+.options__section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-default);
+  letter-spacing: -0.01em;
+}
+
+/* Input groups */
+.options__input-group {
+  margin-bottom: var(--space-6);
+}
+
+.options__input-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Checkbox styling */
+.options__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  transition: background var(--duration-fast) var(--ease-default);
+  cursor: pointer;
+}
+
+.options__checkbox:hover {
+  background: var(--color-surface-tertiary);
+}
+
+.options__checkbox-input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--color-accent-primary);
+  cursor: pointer;
+}
+
+.options__checkbox-label {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  flex: 1;
+}
+
+.options__checkbox-description {
+  display: block;
+  margin-top: var(--space-1);
+  margin-left: 21px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* External link styling */
+.options__external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent-primary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: color var(--duration-fast) var(--ease-default);
+}
+
+.options__external-link:hover {
+  color: var(--color-accent-primary-hover);
+  text-decoration: underline;
+}
+
+/* Button group */
+.options__button-group {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.options__button-group .button {
+  flex: 1;
+}
+
+/* Message banner */
+.options__message {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  animation: slideIn var(--duration-normal) var(--ease-out);
+}
+
+.options__message--success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--color-status-success);
+}
+
+.options__message--error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--color-status-error);
+}
+
+/* API token input with show/hide toggle */
+.options__token-input-wrapper {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.options__token-input-wrapper .input {
+  flex: 1;
+}
+
+.options__token-input-wrapper .button {
+  flex-shrink: 0;
+}
+
+/* Helper text styling */
+.options__helper-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support */
+:root.dark .options {
+  background: var(--color-surface-primary);
+}
+
+:root.dark .options__header {
+  border-bottom-color: var(--color-border-default);
+}
+
+:root.dark .options__section-title {
+  border-bottom-color: var(--color-border-default);
+}
+
+:root.dark .options__checkbox:hover {
+  background: var(--color-surface-tertiary);
+}
+
+:root.dark .options__button-group {
+  border-top-color: var(--color-border-default);
+}
+
+/* Light mode support */
+:root.light .options {
+  background: var(--color-surface-primary);
+}
+
+/* Auto mode - follows system preference */
+@media (prefers-color-scheme: light) {
+  :root.auto .options {
+    background: var(--color-surface-primary);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 540px) {
+  .options {
+    padding: var(--space-6);
+  }
+
+  .options__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .options__button-group {
+    flex-direction: column;
+  }
+
+  .options__button-group .button {
+    width: 100%;
+  }
+}

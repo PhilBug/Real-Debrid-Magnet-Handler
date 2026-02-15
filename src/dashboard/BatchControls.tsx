@@ -1,4 +1,6 @@
 import React from 'react'
+import { Button } from '../components/common/Button'
+import { Icon } from '../components/common/Icon'
 
 interface BatchControlsProps {
   failedCount: number
@@ -21,24 +23,26 @@ export const BatchControls: React.FC<BatchControlsProps> = ({
   return (
     <div className="batch-controls">
       {onRetryFailed && (
-        <button
-          className="batch-control-button batch-control-retry"
+        <Button
+          variant="secondary"
+          size="md"
           onClick={onRetryFailed}
           disabled={!hasFailed || disabled}
           aria-label={`Retry all failed torrents (${failedCount})`}
           title={
             !hasFailed ? 'No failed torrents to retry' : `Retry ${failedCount} failed torrents`
           }
+          leftIcon={<Icon name="refresh" size="sm" />}
         >
-          <span className="batch-control-icon">🔄</span>
-          <span className="batch-control-text">Retry Failed</span>
+          Retry Failed
           {failedCount > 0 && <span className="batch-control-count">{failedCount}</span>}
-        </button>
+        </Button>
       )}
 
       {onClearCompleted && (
-        <button
-          className="batch-control-button batch-control-clear"
+        <Button
+          variant="secondary"
+          size="md"
           onClick={onClearCompleted}
           disabled={!hasCompleted || disabled}
           aria-label={`Clear completed torrents (${completedCount})`}
@@ -47,12 +51,14 @@ export const BatchControls: React.FC<BatchControlsProps> = ({
               ? 'No completed torrents to clear'
               : `Clear ${completedCount} completed torrents`
           }
+          leftIcon={<Icon name="trash" size="sm" />}
         >
-          <span className="batch-control-icon">🗑️</span>
-          <span className="batch-control-text">Clear Completed</span>
+          Clear Completed
           {completedCount > 0 && <span className="batch-control-count">{completedCount}</span>}
-        </button>
+        </Button>
       )}
     </div>
   )
 }
+
+export default BatchControls

@@ -81,7 +81,7 @@ describe('ConversionDashboard', () => {
     it('renders dashboard header', () => {
       render(<ConversionDashboard />)
 
-      expect(screen.getByText('Conversion Dashboard')).toBeInTheDocument()
+      expect(screen.getByText('REAL-DEBRID HANDLER')).toBeInTheDocument()
     })
 
     it('renders empty state when no torrents', () => {

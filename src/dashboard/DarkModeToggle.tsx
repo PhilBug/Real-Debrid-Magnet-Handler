@@ -1,22 +1,43 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { storage } from '../utils/storage'
 import type { DarkMode } from '../utils/types'
+import { Button } from '../components/common/Button'
+import { Icon } from '../components/common/Icon'
 
 interface DarkModeToggleProps {
   className?: string
 }
 
+/**
+ * Resolve the actual theme based on user preference and system preference
+ */
+function resolveTheme(userPreference: DarkMode): 'light' | 'dark' {
+  if (userPreference === 'light') return 'light'
+  if (userPreference === 'dark') return 'dark'
+  // auto mode: respect system preference
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+/**
+ * Apply theme class to document element
+ */
+function applyThemeClass(theme: DarkMode): void {
+  const root = document.documentElement
+  // Remove all theme classes
+  root.classList.remove('light', 'dark', 'auto')
+  // Add the new theme class
+  root.classList.add(theme)
+
+  // For light/dark, also set explicit class for CSS variables
+  const resolved = resolveTheme(theme)
+  if (resolved === 'dark') {
+    root.classList.add('dark')
+  }
+}
+
 export const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
   const [darkMode, setDarkModeState] = useState<DarkMode>('auto')
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
-
-  // Resolve the actual theme based on user preference and system preference
-  const resolveTheme = (userPreference: DarkMode): 'light' | 'dark' => {
-    if (userPreference === 'light') return 'light'
-    if (userPreference === 'dark') return 'dark'
-    // auto mode: respect system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
 
   // Load initial dark mode preference
   useEffect(() => {
@@ -24,6 +45,7 @@ export const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }
       const savedMode = await storage.getDarkMode()
       setDarkModeState(savedMode)
       setResolvedTheme(resolveTheme(savedMode))
+      applyThemeClass(savedMode)
     }
     loadDarkMode()
   }, [])
@@ -35,19 +57,19 @@ export const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {
       setResolvedTheme(resolveTheme(darkMode))
+      applyThemeClass(darkMode)
     }
 
-    // Modern browsers
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [darkMode])
 
   // Apply theme to document
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark')
-  }, [resolvedTheme])
+    applyThemeClass(darkMode)
+  }, [darkMode])
 
-  const handleToggle = async () => {
+  const handleToggle = useCallback(async () => {
     // Cycle through modes: auto -> light -> dark -> auto
     const modes: DarkMode[] = ['auto', 'light', 'dark']
     const currentIndex = modes.indexOf(darkMode)
@@ -55,44 +77,48 @@ export const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }
 
     setDarkModeState(nextMode)
     setResolvedTheme(resolveTheme(nextMode))
+    applyThemeClass(nextMode)
     await storage.setDarkMode(nextMode)
-  }
+  }, [darkMode])
 
-  const getModeIcon = (): string => {
+  const getModeIcon = (): React.ReactNode => {
     switch (darkMode) {
       case 'light':
-        return '☀️'
+        return <Icon name="sun" size="md" aria-label="Light mode" />
       case 'dark':
-        return '🌙'
+        return <Icon name="moon" size="md" aria-label="Dark mode" />
       case 'auto':
-        return '🌗'
       default:
-        return '🌗'
+        return <Icon name="laptop" size="md" aria-label="Auto mode" />
     }
   }
 
   const getModeLabel = (): string => {
     switch (darkMode) {
       case 'light':
-        return 'Light mode'
+        return 'Light'
       case 'dark':
-        return 'Dark mode'
+        return 'Dark'
       case 'auto':
-        return `Auto (${resolvedTheme === 'dark' ? 'dark' : 'light'})`
+        return `Auto (${resolvedTheme})`
       default:
         return 'Auto'
     }
   }
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="md"
       className={`dark-mode-toggle ${className}`}
       onClick={handleToggle}
       aria-label={`Toggle theme (current: ${getModeLabel()})`}
       title={getModeLabel()}
+      leftIcon={getModeIcon()}
     >
-      <span className="dark-mode-icon">{getModeIcon()}</span>
-      <span className="dark-mode-label">{getModeLabel()}</span>
-    </button>
+      <span className="dark-mode-toggle__label">{getModeLabel()}</span>
+    </Button>
   )
 }
+
+export default DarkModeToggle
