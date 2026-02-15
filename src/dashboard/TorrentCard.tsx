@@ -9,7 +9,7 @@ import { DownloadLinks } from './DownloadLinks'
 interface TorrentCardProps {
   torrent: ExtendedTorrentItem
   onRetry?: (torrentId: string) => void
-  onRemove?: (torrentId: string) => void
+  onRemove?: (torrent: ExtendedTorrentItem) => void
   onCopyLinks?: (torrentId: string) => void
   onSelectFiles?: (torrentId: string) => void
 }
@@ -289,7 +289,7 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onRemove(torrent.id)}
+            onClick={() => onRemove(torrent)}
             aria-label={`Remove ${torrent.filename}`}
             leftIcon={<Icon name="trash" size="sm" />}
           >

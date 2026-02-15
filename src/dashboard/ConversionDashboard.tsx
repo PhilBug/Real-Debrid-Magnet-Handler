@@ -2,7 +2,7 @@ import React, { useSyncExternalStore, useCallback, useMemo, useState } from 'rea
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import type { ExtendedTorrentItem, TorrentItem } from '../utils/types'
-import { Icon } from '../components/common/Icon'
+import { Icon, Modal, Button } from '../components/common'
 import { TorrentCard } from './TorrentCard'
 import { BatchControls } from './BatchControls'
 import { DarkModeToggle } from './DarkModeToggle'
@@ -41,6 +41,9 @@ export const ConversionDashboard: React.FC = () => {
 
   // State for file selector modal
   const [selectingFilesTorrentId, setSelectingFilesTorrentId] = useState<string | null>(null)
+
+  // State for remove confirmation modal
+  const [removeConfirmTorrent, setRemoveConfirmTorrent] = useState<ExtendedTorrentItem | null>(null)
 
   // Convert TorrentItem to ExtendedTorrentItem
   const extendedTorrents: ExtendedTorrentItem[] = useMemo(() => {
@@ -121,13 +124,19 @@ export const ConversionDashboard: React.FC = () => {
     }
   }, [])
 
-  const handleRemoveTorrent = useCallback(async (torrentId: string) => {
+  const handleRemoveTorrent = useCallback((torrent: ExtendedTorrentItem) => {
+    setRemoveConfirmTorrent(torrent)
+  }, [])
+
+  const confirmRemoveTorrent = useCallback(async () => {
+    if (!removeConfirmTorrent) return
     try {
-      await storage.removeTorrent(torrentId)
+      await storage.removeTorrent(removeConfirmTorrent.id)
+      setRemoveConfirmTorrent(null)
     } catch (error) {
       console.error('Failed to remove torrent:', error)
     }
-  }, [])
+  }, [removeConfirmTorrent])
 
   const handleCopyLinks = useCallback(
     async (torrentId: string) => {
@@ -254,6 +263,39 @@ export const ConversionDashboard: React.FC = () => {
             onCancel={handleFileSelectionCancel}
           />
         </div>
+      )}
+
+      {/* Remove Torrent Confirmation Modal */}
+      {removeConfirmTorrent && (
+        <Modal
+          isOpen={!!removeConfirmTorrent}
+          onClose={() => setRemoveConfirmTorrent(null)}
+          title="Remove Torrent"
+          size="sm"
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setRemoveConfirmTorrent(null)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={confirmRemoveTorrent}>
+                Remove
+              </Button>
+            </>
+          }
+        >
+          <p>
+            Are you sure you want to remove <strong>{removeConfirmTorrent.filename}</strong>?
+          </p>
+          <p
+            style={{
+              color: 'var(--text-muted)',
+              fontSize: 'var(--text-sm)',
+              marginTop: 'var(--space-2)',
+            }}
+          >
+            This action cannot be undone.
+          </p>
+        </Modal>
       )}
     </div>
   )

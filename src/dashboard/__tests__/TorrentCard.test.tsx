@@ -275,7 +275,7 @@ describe('TorrentCard', () => {
       const removeButton = screen.getByText('Remove')
       fireEvent.click(removeButton)
 
-      expect(mockOnRemove).toHaveBeenCalledWith('torrent-1')
+      expect(mockOnRemove).toHaveBeenCalledWith(torrent)
     })
 
     it('calls onCopyLinks with torrent id when copy links clicked', () => {
@@ -335,7 +335,7 @@ describe('TorrentCard', () => {
       })
       render(<TorrentCard torrent={torrent} />)
 
-      const linkButton = screen.getByText('movie.mkv').closest('button')
+      const linkButton = screen.getByText('movie.mkv').closest('.download-link-button')
       fireEvent.click(linkButton!)
 
       expect(window.open).toHaveBeenCalledWith(

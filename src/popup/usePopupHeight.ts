@@ -41,8 +41,8 @@ export function usePopupHeight(
         fixedHeight += footer.offsetHeight
       }
 
-      // Add padding/buffer (32px for popup padding + 16px for bottom margin)
-      return fixedHeight + 48
+      // Return exact height without extra padding
+      return fixedHeight
     }
 
     // Update popup height based on actual content
@@ -59,12 +59,13 @@ export function usePopupHeight(
 
       // Calculate ideal height (capped at 600px browser hard limit)
       const idealHeight = Math.min(
-        fixedHeight + actualContentHeight + 16, // +16px for bottom padding
+        fixedHeight + actualContentHeight,
         600 // Browser hard limit for extension popups
       )
 
-      // Set minimum height to prevent shrinking too much
-      popup.style.minHeight = `${Math.max(idealHeight, 300)}px`
+      // Set height to fit content exactly
+      popup.style.minHeight = `${idealHeight}px`
+      popup.style.height = `${idealHeight}px`
 
       // Update CSS variable for torrent list max-height
       const availableForList = idealHeight - fixedHeight
@@ -94,5 +95,5 @@ export function usePopupHeight(
       clearTimeout(timeoutId)
       resizeObserverRef.current?.disconnect()
     }
-  }, [enabled])
+  }, [enabled, torrentListRef])
 }
