@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import type { ExtendedTorrentItem } from '../utils/types'
 import { Badge, BadgeVariant } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
@@ -120,11 +120,33 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
   const hasLinks = torrent.links && torrent.links.length > 0
   const hasDownloadUrl = torrent.status === 'ready' && torrent.downloadUrl
 
-  const handleCopyDownloadUrl = () => {
+  // Tooltip state for copy and download buttons
+  const [copyTooltip, setCopyTooltip] = useState(false)
+  const [downloadTooltip, setDownloadTooltip] = useState(false)
+
+  // Handle copy with tooltip feedback
+  const handleCopyDownloadUrl = useCallback(() => {
     if (torrent.downloadUrl) {
       navigator.clipboard.writeText(torrent.downloadUrl)
+      setCopyTooltip(true)
+      setTimeout(() => setCopyTooltip(false), 2000)
     }
-  }
+  }, [torrent.downloadUrl])
+
+  // Handle download with tooltip feedback
+  const handleDownload = useCallback(() => {
+    if (torrent.downloadUrl) {
+      setDownloadTooltip(true)
+      // Create a temporary anchor to trigger download
+      const link = document.createElement('a')
+      link.href = torrent.downloadUrl
+      link.download = torrent.filename || 'download'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      setTimeout(() => setDownloadTooltip(false), 2000)
+    }
+  }, [torrent.downloadUrl, torrent.filename])
 
   return (
     <div className="torrent-card">
@@ -186,15 +208,32 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
             <span className="torrent-converted-url" title={torrent.downloadUrl ?? undefined}>
               {torrent.downloadUrl}
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopyDownloadUrl}
-              aria-label="Copy download URL"
-              leftIcon={<Icon name="copy" size="sm" />}
-            >
-              Copy
-            </Button>
+            <div className="torrent-converted-url-actions">
+              <div className="torrent-action-button-wrapper">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyDownloadUrl}
+                  aria-label="Copy download URL"
+                  leftIcon={<Icon name="copy" size="sm" />}
+                >
+                  Copy
+                </Button>
+                {copyTooltip && <span className="torrent-action-tooltip">Copied!</span>}
+              </div>
+              <div className="torrent-action-button-wrapper">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDownload}
+                  aria-label="Download file"
+                  leftIcon={<Icon name="download" size="sm" />}
+                >
+                  Download
+                </Button>
+                {downloadTooltip && <span className="torrent-action-tooltip">Downloading...</span>}
+              </div>
+            </div>
           </div>
         </div>
       )}

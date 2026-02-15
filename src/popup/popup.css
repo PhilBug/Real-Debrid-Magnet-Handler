@@ -19,6 +19,23 @@
   color: var(--text-primary);
 }
 
+/* Dynamic height based on visible torrents count */
+.popup[data-visible-torrents='3'] {
+  --torrent-list-max-height: 240px;
+}
+
+.popup[data-visible-torrents='5'] {
+  --torrent-list-max-height: 400px;
+}
+
+.popup[data-visible-torrents='7'] {
+  --torrent-list-max-height: 520px;
+}
+
+.popup[data-visible-torrents='10'] {
+  --torrent-list-max-height: 600px;
+}
+
 /* ==========================================================================
    HEADER
    ========================================================================== */
@@ -108,10 +125,12 @@
   flex: 1;
   overflow-y: auto;
   padding: var(--space-3);
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  min-height: 280px;
+  min-height: 100px;
+  max-height: var(--torrent-list-max-height, 400px);
 }
 
 .popup__empty-state {
@@ -207,10 +226,15 @@
    ========================================================================== */
 
 .popup__footer {
+  position: sticky;
+  bottom: 0;
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--border-default);
   background-color: var(--surface-elevated);
   text-align: center;
+  z-index: var(--z-sticky);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: auto;
 }
 
 .popup__footer-link {

@@ -24,6 +24,7 @@ vi.mock('../storage', () => ({
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     ),
   },
@@ -100,6 +101,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       await expect(rdAPI.addMagnet('magnet:?xt=test')).rejects.toThrow('NO_TOKEN')
@@ -114,6 +116,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       await expect(rdAPI.getTorrentInfo('TORRENT_ID')).rejects.toThrow('NO_TOKEN')
@@ -128,6 +131,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       await expect(rdAPI.selectFiles('TORRENT_ID')).rejects.toThrow('NO_TOKEN')
@@ -142,6 +146,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       await expect(rdAPI.deleteTorrent('TORRENT_ID')).rejects.toThrow('NO_TOKEN')
@@ -156,6 +161,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       await expect(rdAPI.unrestrictLink('https://example.com/link')).rejects.toThrow('NO_TOKEN')
@@ -170,6 +176,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       await expect(rdAPI.getTorrents()).rejects.toThrow('NO_TOKEN')
@@ -186,6 +193,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 
@@ -214,6 +222,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
 
       mockClientInstance.post.mockResolvedValue({ data: { id: '123' } })
@@ -234,6 +243,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 
@@ -264,6 +274,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 
@@ -306,6 +317,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 
@@ -328,6 +340,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 
@@ -375,6 +388,7 @@ describe('RealDebridAPI', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 

@@ -36,6 +36,8 @@ function Popup() {
   const [torrents, setTorrents] = useState<TorrentItem[]>([])
   const [selectingFilesTorrentId, setSelectingFilesTorrentId] = useState<string | null>(null)
   const [torrentInfoCache, setTorrentInfoCache] = useState<Map<string, RdTorrentInfo>>(new Map())
+  const [visibleTorrentsCount, setVisibleTorrentsCount] = useState(5)
+
   // Initialize dark mode from storage
   useEffect(() => {
     const initDarkMode = async () => {
@@ -54,6 +56,7 @@ function Popup() {
     checkToken()
     loadTorrents()
     loadPendingMagnet()
+    loadVisibleTorrentsCount()
 
     // Subscribe to torrent list changes
     const listener = (changes: { [key: string]: { newValue?: unknown } }, areaName: string) => {
@@ -79,6 +82,15 @@ function Popup() {
   const checkToken = async () => {
     const settings = await storage.getSettings()
     setHasToken(!!settings.apiToken)
+  }
+
+  const loadVisibleTorrentsCount = async () => {
+    try {
+      const settings = await storage.getSettings()
+      setVisibleTorrentsCount(settings.visibleTorrentsCount || 5)
+    } catch (e) {
+      console.error('Failed to load visibleTorrentsCount', e)
+    }
   }
 
   const loadPendingMagnet = async () => {
@@ -200,7 +212,7 @@ function Popup() {
   }
 
   return (
-    <div className="popup">
+    <div className="popup" data-visible-torrents={visibleTorrentsCount}>
       {/* Header */}
       <header className="popup__header">
         <h1 className="popup__title">
@@ -209,7 +221,7 @@ function Popup() {
         </h1>
         <div className="popup__header-actions">
           <Button variant="ghost" size="sm" onClick={openSettings} aria-label="Open settings">
-            <Icon name="sun" size="md" aria-label="Settings" />
+            <Icon name="gear" size="md" aria-label="Settings" />
           </Button>
         </div>
       </header>
