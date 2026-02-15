@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import { FileSelector } from './FileSelector'
+import { usePopupHeight } from './usePopupHeight'
 import type { TorrentItem, RdTorrentInfo } from '../utils/types'
 import { Button, Input, Badge, Icon, ProgressBar } from '../components/common'
 
@@ -37,6 +38,10 @@ function Popup() {
   const [selectingFilesTorrentId, setSelectingFilesTorrentId] = useState<string | null>(null)
   const [torrentInfoCache, setTorrentInfoCache] = useState<Map<string, RdTorrentInfo>>(new Map())
   const [visibleTorrentsCount, setVisibleTorrentsCount] = useState(5)
+  const torrentListRef = useRef<HTMLDivElement>(null)
+
+  // Enable dynamic popup height calculation based on content
+  usePopupHeight(torrentListRef, true)
 
   // Initialize dark mode from storage
   useEffect(() => {
@@ -282,7 +287,7 @@ function Popup() {
       )}
 
       {/* Torrent List */}
-      <div className="popup__torrent-list">
+      <div ref={torrentListRef} className="popup__torrent-list">
         {torrents.length === 0 ? (
           <div className="popup__empty-state">
             <div className="popup__empty-icon">

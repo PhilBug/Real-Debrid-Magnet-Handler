@@ -12,32 +12,33 @@
 .popup {
   width: 400px;
   min-height: 300px;
-  max-height: 900px;
+  max-height: 600px; /* Browser hard limit for extension popups */
   display: flex;
   flex-direction: column;
   background-color: var(--surface-base);
   color: var(--text-primary);
 }
 
-/* Popup height based on visible torrents count */
+/* Popup min-height based on visible torrents count (fallbacks for graceful degradation)
+   Actual height is dynamically calculated by usePopupHeight hook */
 .popup[data-visible-torrents='3'] {
-  height: 460px; /* 220px fixed + 240px for 3 torrents */
-  --torrent-list-max-height: 240px;
+  min-height: 460px; /* 220px fixed + 240px for 3 torrents */
+  /* --torrent-list-max-height is set dynamically by JS */
 }
 
 .popup[data-visible-torrents='5'] {
-  height: 620px; /* 220px fixed + 400px for 5 torrents */
-  --torrent-list-max-height: 400px;
+  min-height: 620px; /* 220px fixed + 400px for 5 torrents */
+  /* --torrent-list-max-height is set dynamically by JS */
 }
 
 .popup[data-visible-torrents='7'] {
-  height: 740px; /* 220px fixed + 520px for 7 torrents */
-  --torrent-list-max-height: 520px;
+  min-height: 740px; /* 220px fixed + 520px for 7 torrents */
+  /* --torrent-list-max-height is set dynamically by JS */
 }
 
 .popup[data-visible-torrents='10'] {
-  height: 880px; /* 220px fixed + 660px for 10 torrents */
-  --torrent-list-max-height: 660px;
+  min-height: 880px; /* 220px fixed + 660px for 10 torrents */
+  /* --torrent-list-max-height is set dynamically by JS */
 }
 
 /* ==========================================================================
