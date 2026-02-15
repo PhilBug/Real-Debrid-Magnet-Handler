@@ -12,28 +12,32 @@
 .popup {
   width: 400px;
   min-height: 300px;
-  max-height: 600px;
+  max-height: 900px;
   display: flex;
   flex-direction: column;
   background-color: var(--surface-base);
   color: var(--text-primary);
 }
 
-/* Dynamic height based on visible torrents count */
+/* Popup height based on visible torrents count */
 .popup[data-visible-torrents='3'] {
+  height: 460px; /* 220px fixed + 240px for 3 torrents */
   --torrent-list-max-height: 240px;
 }
 
 .popup[data-visible-torrents='5'] {
+  height: 620px; /* 220px fixed + 400px for 5 torrents */
   --torrent-list-max-height: 400px;
 }
 
 .popup[data-visible-torrents='7'] {
+  height: 740px; /* 220px fixed + 520px for 7 torrents */
   --torrent-list-max-height: 520px;
 }
 
 .popup[data-visible-torrents='10'] {
-  --torrent-list-max-height: 600px;
+  height: 880px; /* 220px fixed + 660px for 10 torrents */
+  --torrent-list-max-height: 660px;
 }
 
 /* ==========================================================================
