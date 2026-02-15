@@ -1,0 +1,118 @@
+/**
+ * Icon Component Styles - Industrial Terminal Design System
+ *
+ * SVG icon styling with size variants and animations.
+ * Uses CSS custom properties from tokens.css.
+ */
+
+/* ==========================================================================
+   ICON BASE
+   ========================================================================== */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: currentColor;
+  vertical-align: middle;
+  transition: transform var(--transition-fast);
+}
+
+/* ==========================================================================
+   ICON SIZES
+   ========================================================================== */
+
+.icon--sm {
+  width: 14px;
+  height: 14px;
+}
+
+.icon--md {
+  width: 18px;
+  height: 18px;
+}
+
+.icon--lg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon--xl {
+  width: 32px;
+  height: 32px;
+}
+
+/* ==========================================================================
+   ICON ANIMATIONS
+   ========================================================================== */
+
+/* Spinning animation for spinner and loading states */
+.icon--spinning {
+  animation: icon-spin 1.5s linear infinite;
+}
+
+@keyframes icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse animation for processing states */
+.icon--pulsing {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* ==========================================================================
+   ICON COLOR VARIANTS
+   ========================================================================== */
+
+.icon--success {
+  color: var(--status-ready);
+}
+
+.icon--error {
+  color: var(--status-error);
+}
+
+.icon--warning {
+  color: var(--status-timeout);
+}
+
+.icon--info {
+  color: var(--status-info);
+}
+
+.icon--processing {
+  color: var(--status-processing);
+}
+
+.icon--muted {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .icon--spinning,
+  .icon--pulsing {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

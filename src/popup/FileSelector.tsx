@@ -1,5 +1,13 @@
+/**
+ * FileSelector Component - Industrial Terminal Design System
+ *
+ * A modal component for selecting which files to download from a torrent.
+ * Uses the common Modal and Button components.
+ */
+
 import { useState } from 'react'
 import type { RdTorrentInfo } from '../utils/types'
+import { Button } from '../components/common'
 
 interface FileSelectorProps {
   torrentInfo: RdTorrentInfo
@@ -56,63 +64,56 @@ export function FileSelector({ torrentInfo, onConfirm, onCancel }: FileSelectorP
   const selectedSize = files.filter(f => selectedIds.has(f.id)).reduce((sum, f) => sum + f.bytes, 0)
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-4 mt-4">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="font-medium text-gray-900">Select Files to Download</h3>
-        <span className="text-sm text-gray-600">
+    <div className="file-selector">
+      {/* Header */}
+      <div className="file-selector__header">
+        <h3 className="file-selector__title">Select Files to Download</h3>
+        <span className="file-selector__size-info">
           {formatBytes(selectedSize)} / {formatBytes(totalSize)}
         </span>
       </div>
 
-      <div className="flex gap-2 mb-3">
-        <button
-          type="button"
-          onClick={toggleAll}
-          className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-        >
+      {/* Controls */}
+      <div className="file-selector__controls">
+        <Button variant="secondary" size="sm" onClick={toggleAll}>
           {selectedIds.size === files.length ? 'Deselect All' : 'Select All'}
-        </button>
-        <span className="text-sm text-gray-600 py-1">
+        </Button>
+        <span className="file-selector__select-text">
           {selectedIds.size} of {files.length} files selected
         </span>
       </div>
 
-      <div className="max-h-60 overflow-y-auto border border-gray-200 rounded mb-3">
+      {/* File List */}
+      <div className="file-selector__list">
         {files.map(file => (
-          <label
-            key={file.id}
-            className="flex items-start gap-2 p-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-          >
+          <label key={file.id} className="file-selector__item">
             <input
               type="checkbox"
               checked={selectedIds.has(file.id)}
               onChange={() => toggleFile(file.id)}
-              className="mt-0.5 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+              className="file-selector__checkbox"
             />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm text-gray-900 truncate">{file.path}</div>
-              <div className="text-xs text-gray-500">{formatBytes(file.bytes)}</div>
+            <div className="file-selector__file-info">
+              <div className="file-selector__file-path" title={file.path}>
+                {file.path}
+              </div>
+              <div className="file-selector__file-size">{formatBytes(file.bytes)}</div>
             </div>
           </label>
         ))}
       </div>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={handleConfirm}
-          className="flex-1 bg-blue-600 text-white p-2 rounded font-medium hover:bg-blue-700 transition-colors"
-        >
+      {/* Footer */}
+      <div className="file-selector__footer">
+        <Button variant="primary" fullWidth onClick={handleConfirm} className="file-selector__btn">
           Confirm Selection
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 bg-gray-200 text-gray-700 p-2 rounded font-medium hover:bg-gray-300 transition-colors"
-        >
+        </Button>
+        <Button variant="secondary" fullWidth onClick={onCancel} className="file-selector__btn">
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   )
 }
+
+export default FileSelector

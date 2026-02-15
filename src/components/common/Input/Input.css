@@ -1,0 +1,241 @@
+/**
+ * Input Component Styles - Industrial Terminal Design System
+ *
+ * Input styling with sizes, states, and terminal variant.
+ * Uses CSS custom properties from tokens.css.
+ */
+
+/* ==========================================================================
+   INPUT CONTAINER
+   ========================================================================== */
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.input-container--disabled {
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   INPUT LABEL
+   ========================================================================== */
+
+.input__label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+}
+
+.input-container--disabled .input__label {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   INPUT WRAPPER
+   ========================================================================== */
+
+.input__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* ==========================================================================
+   INPUT BASE
+   ========================================================================== */
+
+.input {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-4);
+  width: 100%;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+/* ==========================================================================
+   INPUT SIZES
+   ========================================================================== */
+
+.input--sm {
+  height: var(--input-height-sm);
+  font-size: var(--text-sm);
+  padding: 0 var(--space-3);
+}
+
+.input--md {
+  height: var(--input-height-md);
+}
+
+.input--lg {
+  height: var(--input-height-lg);
+  font-size: var(--text-lg);
+  padding: 0 var(--space-5);
+}
+
+/* ==========================================================================
+   INPUT WITH PREFIX/SUFFIX
+   ========================================================================== */
+
+.input--has-prefix {
+  padding-left: var(--space-10);
+}
+
+.input--has-suffix {
+  padding-right: var(--space-10);
+}
+
+.input__prefix,
+.input__suffix {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.input__prefix {
+  left: var(--space-3);
+}
+
+.input__suffix {
+  right: var(--space-3);
+}
+
+/* ==========================================================================
+   TERMINAL-STYLE INPUT
+   ========================================================================== */
+
+.input-container--terminal .input__wrapper {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.input-container--terminal .input__wrapper:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.input-container--terminal .input--terminal {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: transparent;
+  border: none;
+  padding-left: var(--space-12);
+  padding-right: var(--space-4);
+}
+
+.input-container--terminal .input--terminal:focus {
+  box-shadow: none;
+}
+
+.input__prompt {
+  position: absolute;
+  left: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--accent-primary);
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   INPUT STATES
+   ========================================================================== */
+
+/* Error state */
+.input-container--error .input__wrapper {
+  border-color: var(--status-error);
+}
+
+.input-container--error .input {
+  border-color: var(--status-error);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.input-container--error .input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.input-container--error.input-container--terminal .input__wrapper {
+  border-color: var(--status-error);
+}
+
+/* Disabled state */
+.input:disabled {
+  cursor: not-allowed;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   INPUT HELPER AND ERROR TEXT
+   ========================================================================== */
+
+.input__error {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--status-error);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.input__helper {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .input,
+  .input-container--terminal .input__wrapper {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .input-container--terminal .input__wrapper {
+    transition: none;
+  }
+}

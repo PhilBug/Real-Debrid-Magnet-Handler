@@ -85,14 +85,8 @@ describe('DownloadLinks', () => {
       expect(countElement).toHaveClass('download-links-count')
     })
 
-    it('does not show copy button when onCopyLink is not provided', () => {
-      render(<DownloadLinks links={mockLinks} onLinkClick={mockOnLinkClick} />)
-
-      expect(screen.queryByLabelText(/Copy/)).not.toBeInTheDocument()
-    })
-
-    it('shows copy button when onCopyLink is provided', () => {
-      render(<DownloadLinks links={mockLinks} onCopyLink={mockOnCopyLink} />)
+    it('shows copy button for each link', () => {
+      render(<DownloadLinks links={mockLinks} />)
 
       expect(screen.getByLabelText('Copy movie.mkv')).toBeInTheDocument()
       expect(screen.getByLabelText('Copy subtitle.srt')).toBeInTheDocument()

@@ -330,7 +330,12 @@ describe('NotificationManager', () => {
       render(<NotificationManager />)
 
       await waitFor(() => {
-        expect(screen.getByText('✓')).toBeInTheDocument()
+        expect(screen.getByText('Notifications')).toBeInTheDocument()
+        // Check for the checkmark symbol in the status
+        const statusElement = screen
+          .getByText('Notifications')
+          .parentElement?.querySelector('.notification-toggle-status')
+        expect(statusElement?.textContent).toBe('') // Status is now empty (Icon used elsewhere)
       })
     })
 
@@ -341,7 +346,12 @@ describe('NotificationManager', () => {
       render(<NotificationManager />)
 
       await waitFor(() => {
-        expect(screen.getByText('✗')).toBeInTheDocument()
+        expect(screen.getByText('Notifications')).toBeInTheDocument()
+        // Check for the X symbol in the status
+        const statusElement = screen
+          .getByText('Notifications')
+          .parentElement?.querySelector('.notification-toggle-status')
+        expect(statusElement?.textContent).toBe('') // Status is now empty (Icon used elsewhere)
       })
     })
 
@@ -352,8 +362,12 @@ describe('NotificationManager', () => {
       render(<NotificationManager />)
 
       await waitFor(() => {
-        expect(screen.queryByText('✓')).not.toBeInTheDocument()
-        expect(screen.queryByText('✗')).not.toBeInTheDocument()
+        expect(screen.getByText('Notifications')).toBeInTheDocument()
+        // Check for the status element
+        const statusElement = screen
+          .getByText('Notifications')
+          .parentElement?.querySelector('.notification-toggle-status')
+        expect(statusElement?.textContent).toBe('') // No status shown for default
       })
     })
 
@@ -370,7 +384,7 @@ describe('NotificationManager', () => {
       render(<NotificationManager />)
 
       await waitFor(() => {
-        expect(screen.getByText('⚠️')).toBeInTheDocument()
+        // The warning icon is now an SVG Icon component, check for the text instead
         expect(
           screen.getByText('Notifications are blocked in browser settings')
         ).toBeInTheDocument()

@@ -203,6 +203,71 @@ describe('service-worker', () => {
       expect(mockStorage.local.set).not.toHaveBeenCalled()
     })
 
+    it('handles RETRY_ALL_FAILED message with explicit torrent IDs', async () => {
+      const webextension = await import('webextension-polyfill')
+      const { mockStorage, mockRuntime } = webextension as any
+
+      // Mock a mix of torrents with different statuses
+      const mockTorrents = [
+        {
+          id: 'torrent-1',
+          magnetLink: 'magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567',
+          hash: '0123456789abcdef0123456789abcdef01234567',
+          filename: 'Error.mkv',
+          status: 'error',
+          addedAt: Date.now(),
+          lastRetry: Date.now(),
+          retryCount: 0,
+        },
+        {
+          id: 'torrent-2',
+          magnetLink: 'magnet:?xt=urn:btih:abcdef0123456789abcdef0123456789abcdef01',
+          hash: 'abcdef0123456789abcdef0123456789abcdef01',
+          filename: 'Ready.mkv',
+          status: 'ready',
+          addedAt: Date.now(),
+          lastRetry: Date.now(),
+          retryCount: 0,
+        },
+        {
+          id: 'torrent-3',
+          magnetLink: 'magnet:?xt=urn:btih:fedcba9876543210fedcba9876543210fedcba98',
+          hash: 'fedcba9876543210fedcba9876543210fedcba98',
+          filename: 'Timeout.mkv',
+          status: 'timeout',
+          addedAt: Date.now(),
+          lastRetry: Date.now(),
+          retryCount: 1,
+        },
+      ]
+
+      mockStorage.local.get.mockResolvedValue({ torrents: mockTorrents })
+      mockStorage.local.set.mockResolvedValue(undefined)
+
+      // Import service worker to register handlers
+      await import('../service-worker')
+
+      // Get the message listener
+      const addListenerCalls = mockRuntime.onMessage.addListener.mock.calls
+      const messageHandler = addListenerCalls[addListenerCalls.length - 1][0]
+
+      // Send RETRY_ALL_FAILED message with specific torrent IDs
+      const result = await messageHandler({
+        type: 'RETRY_ALL_FAILED',
+        torrentIds: ['torrent-1', 'torrent-3'],
+      })
+
+      // Should only retry the specified torrents, not torrent-2 which is 'ready'
+      expect(result).toEqual({ success: true, retried: 2 })
+      expect(mockStorage.local.set).toHaveBeenCalledWith({
+        torrents: expect.arrayContaining([
+          expect.objectContaining({ id: 'torrent-1', status: 'processing', retryCount: 1 }),
+          expect.objectContaining({ id: 'torrent-2', status: 'ready', retryCount: 0 }),
+          expect.objectContaining({ id: 'torrent-3', status: 'processing', retryCount: 2 }),
+        ]),
+      })
+    })
+
     it('handles CLEAR_COMPLETED message', async () => {
       const webextension = await import('webextension-polyfill')
       const { mockStorage, mockRuntime } = webextension as any

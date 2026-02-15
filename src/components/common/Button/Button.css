@@ -1,0 +1,226 @@
+/**
+ * Button Component Styles - Industrial Terminal Design System
+ *
+ * Button styling with variants, sizes, and states.
+ * Uses CSS custom properties from tokens.css.
+ */
+
+/* ==========================================================================
+   BUTTON BASE
+   ========================================================================== */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  line-height: 1;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+  white-space: nowrap;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+/* Focus visible state */
+.button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Remove default outline when using mouse */
+.button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Active press effect */
+.button:active:not(:disabled):not(.button--loading) {
+  transform: scale(0.97);
+}
+
+/* Hover lift effect */
+.button:hover:not(:disabled):not(.button--loading) {
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   BUTTON SIZES
+   ========================================================================== */
+
+.button--sm {
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.button--md {
+  height: var(--btn-height-md);
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.button--lg {
+  height: var(--btn-height-lg);
+  padding: 0 var(--space-6);
+  font-size: var(--text-base);
+}
+
+/* ==========================================================================
+   BUTTON VARIANTS
+   ========================================================================== */
+
+/* Primary Button */
+.button--primary {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border-color: var(--accent-primary);
+}
+
+.button--primary:hover:not(:disabled):not(.button--loading) {
+  background: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
+  box-shadow: var(--shadow-glow);
+}
+
+.button--primary:active:not(:disabled):not(.button--loading) {
+  background: var(--accent-primary-hover);
+}
+
+/* Secondary Button */
+.button--secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.button--secondary:hover:not(:disabled):not(.button--loading) {
+  background: var(--surface-sunken);
+  border-color: var(--border-strong);
+}
+
+.button--secondary:active:not(:disabled):not(.button--loading) {
+  background: var(--surface-sunken);
+}
+
+/* Ghost Button */
+.button--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.button--ghost:hover:not(:disabled):not(.button--loading) {
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+}
+
+.button--ghost:active:not(:disabled):not(.button--loading) {
+  background: var(--surface-sunken);
+}
+
+/* Danger Button */
+.button--danger {
+  background: var(--status-error);
+  color: white;
+  border-color: var(--status-error);
+}
+
+.button--danger:hover:not(:disabled):not(.button--loading) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.button--danger:active:not(:disabled):not(.button--loading) {
+  filter: brightness(1.05);
+}
+
+/* ==========================================================================
+   BUTTON STATES
+   ========================================================================== */
+
+/* Disabled state */
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading state */
+.button--loading {
+  cursor: wait;
+  position: relative;
+}
+
+.button--loading .button__content {
+  opacity: 0.7;
+}
+
+/* Full width */
+.button--full-width {
+  width: 100%;
+}
+
+/* ==========================================================================
+   BUTTON ELEMENTS
+   ========================================================================== */
+
+.button__content {
+  display: inline-flex;
+  align-items: center;
+}
+
+.button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.button__icon--left {
+  margin-right: calc(var(--space-1) * -1);
+}
+
+.button__icon--right {
+  margin-left: calc(var(--space-1) * -1);
+}
+
+.button__spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .button {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:active:not(:disabled):not(.button--loading),
+  .button:hover:not(:disabled):not(.button--loading) {
+    transform: none;
+  }
+}

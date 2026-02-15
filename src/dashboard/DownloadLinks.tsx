@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import type { DownloadLink } from '../utils/types'
+import { Icon } from '../components/common/Icon'
 
 interface DownloadLinksProps {
   links: DownloadLink[]
@@ -7,28 +8,34 @@ interface DownloadLinksProps {
   onCopyLink?: (link: DownloadLink) => void
 }
 
+/**
+ * Format bytes to human readable file size
+ */
+function formatFileSize(bytes?: number): string {
+  if (!bytes) return ''
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let size = bytes
+  let unitIndex = 0
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024
+    unitIndex++
+  }
+  return `${size.toFixed(1)} ${units[unitIndex]}`
+}
+
+/**
+ * Truncate filename to max length while preserving extension
+ */
+function truncateFilename(filename: string, maxLength = 40): string {
+  if (filename.length <= maxLength) return filename
+  const ext = filename.split('.').pop() || ''
+  const nameWithoutExt = filename.slice(0, -(ext.length + 1))
+  const truncated = nameWithoutExt.slice(0, maxLength - ext.length - 4)
+  return `${truncated}...${ext}`
+}
+
 export const DownloadLinks: React.FC<DownloadLinksProps> = ({ links, onLinkClick, onCopyLink }) => {
   const [selectedLinkIndex, setSelectedLinkIndex] = useState<number | null>(null)
-
-  const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return ''
-    const units = ['B', 'KB', 'MB', 'GB', 'TB']
-    let size = bytes
-    let unitIndex = 0
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024
-      unitIndex++
-    }
-    return `${size.toFixed(1)} ${units[unitIndex]}`
-  }
-
-  const truncateFilename = (filename: string, maxLength = 40): string => {
-    if (filename.length <= maxLength) return filename
-    const ext = filename.split('.').pop() || ''
-    const nameWithoutExt = filename.slice(0, -(ext.length + 1))
-    const truncated = nameWithoutExt.slice(0, maxLength - ext.length - 4)
-    return `${truncated}...${ext}`
-  }
 
   const handleLinkClick = (link: DownloadLink, index: number) => {
     setSelectedLinkIndex(index)
@@ -72,18 +79,18 @@ export const DownloadLinks: React.FC<DownloadLinksProps> = ({ links, onLinkClick
               <span className="download-link-filename">{truncateFilename(link.filename)}</span>
               {link.size && <span className="download-link-size">{formatFileSize(link.size)}</span>}
             </div>
-            {onCopyLink && (
-              <button
-                className="download-link-copy"
-                onClick={e => handleCopyLink(e, link)}
-                aria-label={`Copy ${link.filename}`}
-              >
-                📋
-              </button>
-            )}
+            <button
+              className="download-link-copy"
+              onClick={e => handleCopyLink(e, link)}
+              aria-label={`Copy ${link.filename}`}
+            >
+              <Icon name="copy" size="sm" />
+            </button>
           </button>
         ))}
       </div>
     </div>
   )
 }
+
+export default DownloadLinks

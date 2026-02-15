@@ -1,0 +1,471 @@
+/**
+ * Popup Styles - Industrial Terminal Design System
+ *
+ * Styles for the browser extension popup (400px width).
+ * Uses CSS custom properties from tokens.css.
+ */
+
+/* ==========================================================================
+   POPUP CONTAINER
+   ========================================================================== */
+
+.popup {
+  width: 400px;
+  min-height: 300px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-base);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+
+.popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  background-color: var(--surface-elevated);
+}
+
+.popup__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.popup__title-prefix {
+  color: var(--accent-primary);
+  font-weight: var(--font-bold);
+}
+
+.popup__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ==========================================================================
+   MAGNET INPUT SECTION
+   ========================================================================== */
+
+.popup__input-section {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.popup__input-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.popup__submit-btn {
+  flex: 1;
+}
+
+/* ==========================================================================
+   STATUS BAR
+   ========================================================================== */
+
+.popup__status-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.popup__status-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.popup__status-count {
+  font-weight: var(--font-semibold);
+}
+
+/* ==========================================================================
+   TORRENT LIST
+   ========================================================================== */
+
+.popup__torrent-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.popup__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.popup__empty-icon {
+  margin-bottom: var(--space-3);
+  opacity: 0.5;
+}
+
+.popup__empty-text {
+  font-size: var(--text-sm);
+}
+
+/* ==========================================================================
+   TORRENT CARD
+   ========================================================================== */
+
+.popup__torrent-card {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.popup__torrent-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.popup__torrent-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.popup__torrent-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.popup__torrent-filename {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popup__torrent-status {
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.popup__torrent-progress {
+  margin-top: var(--space-2);
+}
+
+.popup__torrent-actions {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.popup__torrent-remove {
+  flex-shrink: 0;
+  padding: var(--space-1);
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.popup__torrent-remove:hover {
+  color: var(--status-error);
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
+.popup__footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-default);
+  background-color: var(--surface-elevated);
+  text-align: center;
+}
+
+.popup__footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.popup__footer-link:hover {
+  color: var(--accent-primary-hover);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   ERROR MESSAGE
+   ========================================================================== */
+
+.popup__error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-left: 3px solid var(--status-error);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--status-error);
+}
+
+/* ==========================================================================
+   FILE SELECTOR MODAL
+   ========================================================================== */
+
+.popup__file-selector-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--surface-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+.popup__file-selector-content {
+  width: 360px;
+  max-height: 80vh;
+}
+
+/* File selector specific styles */
+.file-selector {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.file-selector__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.file-selector__title {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.file-selector__size-info {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.file-selector__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.file-selector__select-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.file-selector__list {
+  max-height: 240px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.file-selector__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.file-selector__item:last-child {
+  border-bottom: none;
+}
+
+.file-selector__item:hover {
+  background-color: var(--surface-sunken);
+}
+
+.file-selector__checkbox {
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+.file-selector__file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-selector__file-path {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-selector__file-size {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.file-selector__footer {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.file-selector__btn {
+  flex: 1;
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+.dark .popup,
+[data-theme='dark'] .popup {
+  background-color: var(--surface-base);
+}
+
+.dark .popup__header,
+[data-theme='dark'] .popup__header {
+  background-color: var(--surface-elevated);
+}
+
+.dark .popup__status-bar,
+[data-theme='dark'] .popup__status-bar {
+  background-color: var(--surface-sunken);
+}
+
+.dark .popup__torrent-card,
+[data-theme='dark'] .popup__torrent-card {
+  background-color: var(--surface-elevated);
+}
+
+.dark .popup__footer,
+[data-theme='dark'] .popup__footer {
+  background-color: var(--surface-elevated);
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popup__torrent-card {
+  animation: slideIn var(--duration-normal) var(--ease-out);
+}
+
+/* Staggered animation for torrent cards */
+.popup__torrent-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+.popup__torrent-card:nth-child(2) {
+  animation-delay: 50ms;
+}
+.popup__torrent-card:nth-child(3) {
+  animation-delay: 100ms;
+}
+.popup__torrent-card:nth-child(4) {
+  animation-delay: 150ms;
+}
+.popup__torrent-card:nth-child(5) {
+  animation-delay: 200ms;
+}
+.popup__torrent-card:nth-child(6) {
+  animation-delay: 250ms;
+}
+.popup__torrent-card:nth-child(7) {
+  animation-delay: 300ms;
+}
+.popup__torrent-card:nth-child(8) {
+  animation-delay: 350ms;
+}
+.popup__torrent-card:nth-child(9) {
+  animation-delay: 400ms;
+}
+.popup__torrent-card:nth-child(10) {
+  animation-delay: 450ms;
+}
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+
+/* Ensure content doesn't overflow on smaller screens */
+@media (max-height: 400px) {
+  .popup {
+    max-height: 90vh;
+  }
+
+  .popup__torrent-list {
+    max-height: 150px;
+  }
+}

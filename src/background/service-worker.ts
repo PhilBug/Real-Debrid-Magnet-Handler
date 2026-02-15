@@ -193,15 +193,17 @@ async function handleGetTorrentInfo(torrentId: string) {
 }
 
 // Retry all failed torrents
-async function handleRetryFailed() {
+async function handleRetryFailed(torrentIds?: string[]) {
   const torrents = await storage.getTorrents()
-  const failedTorrents = torrents.filter(t => t.status === 'error' || t.status === 'timeout')
+  const torrentsToRetry = torrentIds
+    ? torrents.filter(t => torrentIds.includes(t.id))
+    : torrents.filter(t => t.status === 'error' || t.status === 'timeout')
 
-  if (failedTorrents.length === 0) {
+  if (torrentsToRetry.length === 0) {
     return { success: true, retried: 0 }
   }
 
-  for (const torrent of failedTorrents) {
+  for (const torrent of torrentsToRetry) {
     torrent.status = 'processing'
     torrent.lastRetry = Date.now()
     torrent.retryCount += 1
@@ -209,7 +211,7 @@ async function handleRetryFailed() {
 
   await storage.saveTorrents(torrents)
 
-  return { success: true, retried: failedTorrents.length }
+  return { success: true, retried: torrentsToRetry.length }
 }
 
 // Clear completed torrents
@@ -395,6 +397,8 @@ browser.runtime.onMessage.addListener(async (message: unknown) => {
     return await handleSelectFiles(msg.torrentId || '', msg.selectedFiles || 'all')
   } else if (msg.type === 'GET_TORRENT_INFO') {
     return await handleGetTorrentInfo(msg.torrentId || '')
+  } else if (msg.type === 'RETRY_ALL_FAILED') {
+    return await handleRetryFailed(msg.torrentIds)
   } else if (msg.type === 'RETRY_FAILED') {
     return await handleRetryFailed()
   } else if (msg.type === 'CLEAR_COMPLETED') {

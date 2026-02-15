@@ -1,5 +1,8 @@
 import React from 'react'
 import type { ExtendedTorrentItem } from '../utils/types'
+import { Badge, BadgeVariant } from '../components/common/Badge'
+import { Button } from '../components/common/Button'
+import { Icon } from '../components/common/Icon'
 import { ProgressIndicator } from './ProgressIndicator'
 import { DownloadLinks } from './DownloadLinks'
 
@@ -10,89 +13,128 @@ interface TorrentCardProps {
   onCopyLinks?: (torrentId: string) => void
 }
 
+/**
+ * Map torrent status to Badge variant
+ */
+function getStatusBadgeVariant(status: ExtendedTorrentItem['status']): BadgeVariant {
+  switch (status) {
+    case 'processing':
+      return 'processing'
+    case 'ready':
+      return 'ready'
+    case 'error':
+      return 'error'
+    case 'timeout':
+      return 'timeout'
+    case 'selecting_files':
+      return 'selecting'
+    default:
+      return 'default'
+  }
+}
+
+/**
+ * Get icon for torrent status
+ */
+function getStatusIcon(status: ExtendedTorrentItem['status']): React.ReactNode {
+  switch (status) {
+    case 'processing':
+      return <Icon name="spinner" size="sm" />
+    case 'ready':
+      return <Icon name="check-circle" size="sm" />
+    case 'error':
+      return <Icon name="x-circle" size="sm" />
+    case 'timeout':
+      return <Icon name="clock" size="sm" />
+    case 'selecting_files':
+      return <Icon name="file" size="sm" />
+    default:
+      return <Icon name="file" size="sm" />
+  }
+}
+
+/**
+ * Get display text for torrent status
+ */
+function getStatusText(status: ExtendedTorrentItem['status']): string {
+  switch (status) {
+    case 'processing':
+      return 'Processing'
+    case 'ready':
+      return 'Ready'
+    case 'error':
+      return 'Error'
+    case 'timeout':
+      return 'Timeout'
+    case 'selecting_files':
+      return 'Selecting Files'
+    default:
+      return 'Unknown'
+  }
+}
+
+/**
+ * Format bytes per second to human readable speed
+ */
+function formatSpeed(bytesPerSecond?: number): string {
+  if (!bytesPerSecond) return ''
+  const units = ['B/s', 'KB/s', 'MB/s', 'GB/s']
+  let speed = bytesPerSecond
+  let unitIndex = 0
+  while (speed >= 1024 && unitIndex < units.length - 1) {
+    speed /= 1024
+    unitIndex++
+  }
+  return `${speed.toFixed(1)} ${units[unitIndex]}`
+}
+
+/**
+ * Format timestamp to relative time
+ */
+function formatDate(timestamp: number): string {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays < 7) return `${diffDays}d ago`
+  return date.toLocaleDateString()
+}
+
 export const TorrentCard: React.FC<TorrentCardProps> = ({
   torrent,
   onRetry,
   onRemove,
   onCopyLinks,
 }) => {
-  const getStatusIcon = (status: ExtendedTorrentItem['status']): string => {
-    switch (status) {
-      case 'processing':
-        return '⏳'
-      case 'ready':
-        return '✅'
-      case 'error':
-        return '❌'
-      case 'timeout':
-        return '⏱️'
-      case 'selecting_files':
-        return '📋'
-      default:
-        return '❓'
-    }
-  }
-
-  const getStatusText = (status: ExtendedTorrentItem['status']): string => {
-    switch (status) {
-      case 'processing':
-        return 'Processing'
-      case 'ready':
-        return 'Ready'
-      case 'error':
-        return 'Error'
-      case 'timeout':
-        return 'Timeout'
-      case 'selecting_files':
-        return 'Selecting Files'
-      default:
-        return 'Unknown'
-    }
-  }
-
-  const formatSpeed = (bytesPerSecond?: number): string => {
-    if (!bytesPerSecond) return ''
-    const units = ['B/s', 'KB/s', 'MB/s', 'GB/s']
-    let speed = bytesPerSecond
-    let unitIndex = 0
-    while (speed >= 1024 && unitIndex < units.length - 1) {
-      speed /= 1024
-      unitIndex++
-    }
-    return `${speed.toFixed(1)} ${units[unitIndex]}`
-  }
-
-  const formatDate = (timestamp: number): string => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
-
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
-  }
-
   const canRetry = torrent.status === 'error' || torrent.status === 'timeout'
   const hasProgress = torrent.progress && torrent.progress.progress > 0
   const hasLinks = torrent.links && torrent.links.length > 0
 
   return (
     <div className="torrent-card">
+      {/* Card Header */}
       <div className="torrent-card-header">
         <div className="torrent-card-title">
-          <span className="torrent-status-icon">{getStatusIcon(torrent.status)}</span>
           <span className="torrent-filename" title={torrent.filename}>
             {torrent.filename}
           </span>
         </div>
-        <span className="torrent-status-badge">{getStatusText(torrent.status)}</span>
+        <Badge
+          variant={getStatusBadgeVariant(torrent.status)}
+          icon={getStatusIcon(torrent.status)}
+          size="sm"
+        >
+          {getStatusText(torrent.status)}
+        </Badge>
       </div>
 
+      {/* Card Meta */}
       <div className="torrent-card-meta">
         <span className="torrent-added-time">Added {formatDate(torrent.addedAt)}</span>
         {torrent.retryCount > 0 && (
@@ -100,6 +142,7 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
         )}
       </div>
 
+      {/* Progress Section */}
       {hasProgress && (
         <div className="torrent-progress-section">
           <ProgressIndicator
@@ -125,6 +168,7 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
         </div>
       )}
 
+      {/* Links Section */}
       {hasLinks && (
         <div className="torrent-links-section">
           <DownloadLinks
@@ -136,35 +180,44 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
         </div>
       )}
 
+      {/* Card Actions */}
       <div className="torrent-card-actions">
         {canRetry && onRetry && (
-          <button
-            className="torrent-action-button torrent-action-retry"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => onRetry(torrent.id)}
             aria-label={`Retry ${torrent.filename}`}
+            leftIcon={<Icon name="refresh" size="sm" />}
           >
-            🔄 Retry
-          </button>
+            Retry
+          </Button>
         )}
         {hasLinks && onCopyLinks && (
-          <button
-            className="torrent-action-button torrent-action-copy"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => onCopyLinks(torrent.id)}
             aria-label={`Copy links for ${torrent.filename}`}
+            leftIcon={<Icon name="copy" size="sm" />}
           >
-            📋 Copy Links
-          </button>
+            Copy Links
+          </Button>
         )}
         {onRemove && (
-          <button
-            className="torrent-action-button torrent-action-remove"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onRemove(torrent.id)}
             aria-label={`Remove ${torrent.filename}`}
+            leftIcon={<Icon name="trash" size="sm" />}
           >
-            🗑️ Remove
-          </button>
+            Remove
+          </Button>
         )}
       </div>
     </div>
   )
 }
+
+export default TorrentCard
