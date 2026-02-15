@@ -11,6 +11,7 @@ interface TorrentCardProps {
   onRetry?: (torrentId: string) => void
   onRemove?: (torrentId: string) => void
   onCopyLinks?: (torrentId: string) => void
+  onSelectFiles?: (torrentId: string) => void
 }
 
 /**
@@ -111,10 +112,19 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
   onRetry,
   onRemove,
   onCopyLinks,
+  onSelectFiles,
 }) => {
   const canRetry = torrent.status === 'error' || torrent.status === 'timeout'
+  const canSelectFiles = torrent.status === 'selecting_files'
   const hasProgress = torrent.progress && torrent.progress.progress > 0
   const hasLinks = torrent.links && torrent.links.length > 0
+  const hasDownloadUrl = torrent.status === 'ready' && torrent.downloadUrl
+
+  const handleCopyDownloadUrl = () => {
+    if (torrent.downloadUrl) {
+      navigator.clipboard.writeText(torrent.downloadUrl)
+    }
+  }
 
   return (
     <div className="torrent-card">
@@ -168,6 +178,27 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
         </div>
       )}
 
+      {/* Converted URL Section */}
+      {hasDownloadUrl && (
+        <div className="torrent-converted-url-section">
+          <div className="torrent-converted-url-label">Converted URL</div>
+          <div className="torrent-converted-url-container">
+            <span className="torrent-converted-url" title={torrent.downloadUrl ?? undefined}>
+              {torrent.downloadUrl}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCopyDownloadUrl}
+              aria-label="Copy download URL"
+              leftIcon={<Icon name="copy" size="sm" />}
+            >
+              Copy
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Links Section */}
       {hasLinks && (
         <div className="torrent-links-section">
@@ -182,6 +213,17 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
 
       {/* Card Actions */}
       <div className="torrent-card-actions">
+        {canSelectFiles && onSelectFiles && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => onSelectFiles(torrent.id)}
+            aria-label={`Select files for ${torrent.filename}`}
+            leftIcon={<Icon name="file" size="sm" />}
+          >
+            Choose Files
+          </Button>
+        )}
         {canRetry && onRetry && (
           <Button
             variant="secondary"

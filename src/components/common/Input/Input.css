@@ -145,15 +145,6 @@
   box-shadow: var(--focus-ring);
 }
 
-.input-container--terminal .input--terminal {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  background: transparent;
-  border: none;
-  padding-left: var(--space-12);
-  padding-right: var(--space-4);
-}
-
 .input-container--terminal .input--terminal:focus {
   box-shadow: none;
 }
@@ -168,6 +159,17 @@
   pointer-events: none;
   user-select: none;
   z-index: 1;
+  margin-right: var(--space-2);
+}
+
+/* Add padding after the rd:// prefix for visual separation */
+.input-container--terminal .input--terminal {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: transparent;
+  border: none;
+  padding-left: 4.5rem;
+  padding-right: var(--space-4);
 }
 
 /* ==========================================================================

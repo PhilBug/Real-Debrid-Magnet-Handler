@@ -235,14 +235,6 @@ function Popup() {
             >
               {loading ? 'Converting...' : 'Convert'}
             </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={openSettings}
-              aria-label="Open settings"
-            >
-              <Icon name="sun" size="md" />
-            </Button>
           </div>
         </form>
       </section>
