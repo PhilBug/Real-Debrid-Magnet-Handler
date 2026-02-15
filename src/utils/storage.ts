@@ -46,6 +46,7 @@ export const storage = {
       maxRetryDuration: 300,
       contextMenuEnabled: false,
       alwaysSaveAllFiles: false,
+      visibleTorrentsCount: 5,
     })
     return result as unknown as Settings
   },

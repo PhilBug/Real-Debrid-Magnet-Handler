@@ -89,6 +89,7 @@ describe('types', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       }
       expect(settings.maxListSize).toBe(10)
       expect(settings.apiToken).toBe('test-token')
@@ -102,6 +103,7 @@ describe('types', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       }
       expect(settings.apiToken).toBeNull()
     })

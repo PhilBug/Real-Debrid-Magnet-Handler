@@ -22,6 +22,7 @@ function Options() {
   const [maxListSize, setMaxListSize] = useState(10)
   const [contextMenuEnabled, setContextMenuEnabled] = useState(false)
   const [alwaysSaveAllFiles, setAlwaysSaveAllFiles] = useState(false)
+  const [visibleTorrentsCount, setVisibleTorrentsCount] = useState(5)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [showToken, setShowToken] = useState(false)
@@ -36,6 +37,7 @@ function Options() {
     setMaxListSize(settings.maxListSize)
     setContextMenuEnabled(settings.contextMenuEnabled)
     setAlwaysSaveAllFiles(settings.alwaysSaveAllFiles)
+    setVisibleTorrentsCount(settings.visibleTorrentsCount)
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -58,6 +60,7 @@ function Options() {
         maxListSize,
         contextMenuEnabled,
         alwaysSaveAllFiles,
+        visibleTorrentsCount,
       })
 
       setMessage('Settings saved successfully!')
@@ -136,6 +139,26 @@ function Options() {
               max="50"
               helperText="Number of torrents to keep in the list (5-50)"
             />
+          </div>
+
+          <div className="options__input-group">
+            <label className="options__select-label" htmlFor="visibleTorrentsCount">
+              Visible torrents in popup
+            </label>
+            <select
+              id="visibleTorrentsCount"
+              className="options__select"
+              value={visibleTorrentsCount}
+              onChange={e => setVisibleTorrentsCount(parseInt(e.target.value))}
+            >
+              <option value={3}>3 torrents</option>
+              <option value={5}>5 torrents</option>
+              <option value={7}>7 torrents</option>
+              <option value={10}>10 torrents</option>
+            </select>
+            <div className="options__helper-text">
+              Number of torrents visible by default in the popup before scrolling
+            </div>
           </div>
 
           <div className="options__input-group">

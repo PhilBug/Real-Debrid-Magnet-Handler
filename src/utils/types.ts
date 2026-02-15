@@ -19,6 +19,7 @@ export interface Settings {
   maxRetryDuration: number
   contextMenuEnabled: boolean
   alwaysSaveAllFiles: boolean
+  visibleTorrentsCount: number
 }
 
 // Real-Debrid API response types

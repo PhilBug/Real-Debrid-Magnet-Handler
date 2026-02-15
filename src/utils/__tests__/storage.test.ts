@@ -61,6 +61,7 @@ describe('storage', () => {
         maxRetryDuration: 300,
         contextMenuEnabled: false,
         alwaysSaveAllFiles: false,
+        visibleTorrentsCount: 5,
       })
     })
 

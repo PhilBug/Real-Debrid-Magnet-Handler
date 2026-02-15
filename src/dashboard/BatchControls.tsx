@@ -42,7 +42,7 @@ export const BatchControls: React.FC<BatchControlsProps> = ({
       {onClearCompleted && (
         <Button
           variant="secondary"
-          size="md"
+          size="lg"
           onClick={onClearCompleted}
           disabled={!hasCompleted || disabled}
           aria-label={`Clear completed torrents (${completedCount})`}
