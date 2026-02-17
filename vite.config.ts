@@ -4,6 +4,9 @@ import webExtension from '@samrum/vite-plugin-web-extension'
 
 export default defineConfig({
   base: '',
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
+  },
   plugins: [
     tailwindcss() as any,
     webExtension({
