@@ -17,7 +17,8 @@
     "test:ui": "NO_COLOR=1 FORCE_COLOR=0 vitest --ui",
     "test:coverage": "NO_COLOR=1 FORCE_COLOR=0 vitest --coverage",
     "package": "NO_COLOR=1 FORCE_COLOR=0 web-ext build --source-dir ./dist --artifacts-dir ./web-ext-artifacts",
-    "semantic-release": "NO_COLOR=1 FORCE_COLOR=0 semantic-release"
+    "semantic-release": "NO_COLOR=1 FORCE_COLOR=0 semantic-release",
+    "precheck": "npm run lint ; npm run format --write ; npm run test -- --run ; npm run build"
   },
   "repository": {
     "type": "git",

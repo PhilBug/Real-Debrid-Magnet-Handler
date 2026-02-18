@@ -7,6 +7,7 @@ import { TorrentCard } from './TorrentCard'
 import { BatchControls } from './BatchControls'
 import { DarkModeToggle } from './DarkModeToggle'
 import { DashboardFileSelector } from './DashboardFileSelector'
+import { VersionBadge } from './VersionBadge'
 
 // Custom hook for storage synchronization using useSyncExternalStore
 function useStorage<T>(key: string, defaultValue: T): T {
@@ -214,7 +215,10 @@ export const ConversionDashboard: React.FC = () => {
             </span>
           </div>
         </div>
-        <DarkModeToggle className="dashboard-dark-mode-toggle" />
+        <div className="dashboard-header-actions">
+          <VersionBadge className="dashboard-version-badge" />
+          <DarkModeToggle className="dashboard-dark-mode-toggle" />
+        </div>
       </header>
 
       {/* Batch Controls */}

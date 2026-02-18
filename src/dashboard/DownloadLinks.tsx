@@ -68,19 +68,14 @@ export const DownloadLinks: React.FC<DownloadLinksProps> = ({ links, onLinkClick
       <div className="download-links-list">
         {links.map((link, index) => (
           <div
-            key={`${link.filename}-${index}`}
             role="button"
             tabIndex={0}
+            key={`${link.filename}-${index}`}
             className={`download-link-button ${
               selectedLinkIndex === index ? 'download-link-button-selected' : ''
             }`}
             onClick={() => handleLinkClick(link, index)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                handleLinkClick(link, index)
-              }
-            }}
+            onKeyDown={e => e.key === 'Enter' && handleLinkClick(link, index)}
             title={link.filename}
           >
             <div className="download-link-content">

@@ -41,9 +41,19 @@ function Popup() {
   const [downloadTooltip, setDownloadTooltip] = useState<string | null>(null)
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false)
   const torrentListRef = useRef<HTMLDivElement>(null)
+  const downloadTooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Enable dynamic popup height calculation based on content
   usePopupHeight(torrentListRef, true)
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (downloadTooltipTimeoutRef.current) {
+        clearTimeout(downloadTooltipTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Initialize dark mode from storage
   useEffect(() => {
@@ -166,7 +176,8 @@ function Popup() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    setTimeout(() => setDownloadTooltip(null), 2000)
+    const timeoutId = setTimeout(() => setDownloadTooltip(null), 2000)
+    downloadTooltipTimeoutRef.current = timeoutId
   }, [])
 
   const handleRemove = async (torrentId: string) => {

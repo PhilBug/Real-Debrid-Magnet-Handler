@@ -71,12 +71,6 @@
   color: var(--text-muted);
 }
 
-.input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: var(--focus-ring);
-}
-
 /* ==========================================================================
    INPUT SIZES
    ========================================================================== */
@@ -95,6 +89,12 @@
   height: var(--input-height-lg);
   font-size: var(--text-lg);
   padding: 0 var(--space-5);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--focus-ring);
 }
 
 /* ==========================================================================
