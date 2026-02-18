@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act, within } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { ConversionDashboard } from '../ConversionDashboard'
 import { storage } from '../../utils/storage'
@@ -78,37 +78,45 @@ describe('ConversionDashboard', () => {
   })
 
   describe('initial rendering', () => {
-    it('renders dashboard header', () => {
+    it('renders dashboard header', async () => {
       render(<ConversionDashboard />)
 
-      expect(screen.getByText('Conversion Dashboard')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('REAL-DEBRID HANDLER')).toBeInTheDocument()
+      })
     })
 
-    it('renders empty state when no torrents', () => {
+    it('renders empty state when no torrents', async () => {
       render(<ConversionDashboard />)
 
-      expect(screen.getByText('No torrents yet')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('No torrents yet')).toBeInTheDocument()
+      })
       expect(
         screen.getByText('Paste a magnet link in the popup to start converting torrents.')
       ).toBeInTheDocument()
       expect(screen.getByText('No torrents yet')).toBeInTheDocument()
     })
 
-    it('renders statistics in header', () => {
+    it('renders statistics in header', async () => {
       render(<ConversionDashboard />)
 
-      expect(screen.getByText('Total')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('Total')).toBeInTheDocument()
+      })
       expect(screen.getByText('Processing')).toBeInTheDocument()
       expect(screen.getByText('Ready')).toBeInTheDocument()
       expect(screen.getByText('Failed')).toBeInTheDocument()
     })
 
-    it('shows zero counts when no torrents', () => {
+    it('shows zero counts when no torrents', async () => {
       render(<ConversionDashboard />)
 
       // All stats should show 0 when no torrents
-      const zeroValues = screen.getAllByText('0')
-      expect(zeroValues.length).toBeGreaterThan(0)
+      await waitFor(() => {
+        const zeroValues = screen.getAllByText('0')
+        expect(zeroValues.length).toBeGreaterThan(0)
+      })
     })
   })
 
@@ -407,6 +415,20 @@ describe('ConversionDashboard', () => {
         fireEvent.click(removeButton)
       })
 
+      // Modal should be shown - check for dialog role
+      const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Remove Torrent' }), {
+        timeout: 3000,
+      })
+      expect(dialog).toBeInTheDocument()
+
+      // Verify modal content
+      within(dialog).getByText(/Are you sure you want to remove/)
+      within(dialog).getByText('Test.mkv')
+
+      // Click the Remove button in the modal
+      const confirmRemoveButton = within(dialog).getByRole('button', { name: 'Remove' })
+      fireEvent.click(confirmRemoveButton)
+
       expect(storage.removeTorrent).toHaveBeenCalledWith('torrent-1')
     })
 
@@ -482,6 +504,7 @@ describe('ConversionDashboard', () => {
       const browser = webextension.default as any
 
       render(<ConversionDashboard />)
+      await screen.findByText('REAL-DEBRID HANDLER')
 
       expect(browser.storage.onChanged.addListener).toHaveBeenCalled()
     })
@@ -491,6 +514,7 @@ describe('ConversionDashboard', () => {
       const browser = webextension.default as any
 
       render(<ConversionDashboard />)
+      await screen.findByText('REAL-DEBRID HANDLER')
 
       // Get the listener callback
       const addListenerCalls = browser.storage.onChanged.addListener.mock.calls
@@ -628,6 +652,15 @@ describe('ConversionDashboard', () => {
         const removeButton = screen.getByRole('button', { name: /Remove Test.mkv/ })
         fireEvent.click(removeButton)
       })
+
+      // Wait for modal to appear
+      const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Remove Torrent' }), {
+        timeout: 3000,
+      })
+
+      // Click the Remove button in the modal to trigger the error
+      const confirmRemoveButton = within(dialog).getByRole('button', { name: 'Remove' })
+      fireEvent.click(confirmRemoveButton)
 
       // Error should be logged but not throw
       expect(storage.removeTorrent).toHaveBeenCalledWith('torrent-1')

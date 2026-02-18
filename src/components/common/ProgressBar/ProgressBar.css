@@ -1,0 +1,182 @@
+/**
+ * ProgressBar Component Styles - Industrial Terminal Design System
+ *
+ * Progress bar styling with variants for different operation types.
+ * Uses CSS custom properties from tokens.css.
+ */
+
+/* ==========================================================================
+   PROGRESS CONTAINER
+   ========================================================================== */
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* ==========================================================================
+   PROGRESS HEADER
+   ========================================================================== */
+
+.progress__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.progress__label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+}
+
+.progress__percentage {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   PROGRESS BAR BASE
+   ========================================================================== */
+
+.progress {
+  width: 100%;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   PROGRESS BAR SIZES
+   ========================================================================== */
+
+.progress--sm .progress {
+  height: 4px;
+}
+
+.progress--md .progress {
+  height: 8px;
+}
+
+.progress--lg .progress {
+  height: 12px;
+}
+
+/* ==========================================================================
+   PROGRESS BAR FILL
+   ========================================================================== */
+
+.progress-bar {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+/* ==========================================================================
+   PROGRESS BAR VARIANTS
+   ========================================================================== */
+
+/* Default */
+.progress-bar--default {
+  background: var(--accent-primary);
+}
+
+/* Downloading */
+.progress-bar--downloading {
+  background: var(--progress-downloading);
+}
+
+/* Uploading */
+.progress-bar--uploading {
+  background: var(--progress-uploading);
+}
+
+/* Converting */
+.progress-bar--converting {
+  background: var(--progress-converting);
+}
+
+/* Completed */
+.progress-bar--completed {
+  background: var(--progress-completed);
+}
+
+/* Error */
+.progress-bar--error {
+  background: var(--progress-error);
+}
+
+/* Paused */
+.progress-bar--paused {
+  background: var(--progress-paused);
+}
+
+/* ==========================================================================
+   INDETERMINATE STATE
+   ========================================================================== */
+
+.progress-bar--indeterminate {
+  width: 100% !important;
+  background: linear-gradient(90deg, transparent 0%, var(--accent-primary) 50%, transparent 100%);
+  background-size: 50% 100%;
+  animation: progress-indeterminate 1.5s infinite linear;
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ==========================================================================
+   ANIMATED SHIMMER (Alternative indeterminate style)
+   ========================================================================== */
+
+.progress-bar--shimmer {
+  width: 100% !important;
+  background: linear-gradient(
+    90deg,
+    var(--accent-primary) 0%,
+    var(--accent-secondary) 50%,
+    var(--accent-primary) 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-shimmer 1.5s infinite linear;
+}
+
+@keyframes progress-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar {
+    transition: none;
+  }
+
+  .progress-bar--indeterminate,
+  .progress-bar--shimmer {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

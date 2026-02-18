@@ -1,15 +1,15 @@
-@import 'tailwindcss';
+/**
+ * Main Stylesheet - Industrial Terminal Design System
+ * 
+ * This is the main entry point for all styles.
+ * Import order matters: tokens -> base -> utilities
+ */
 
-@theme {
-  --color-primary-500: oklch(0.6 0.2 250);
-  --color-primary-600: oklch(0.55 0.22 250);
-  --color-success: oklch(0.65 0.15 145);
-  --color-error: oklch(0.6 0.2 25);
-  --color-warning: oklch(0.7 0.15 85);
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-}
+/* Design tokens (CSS custom properties) */
+@import './tokens.css';
 
-body {
-  width: 400px;
-  min-height: 400px;
-}
+/* Base styles (reset, fonts, typography) */
+@import './base.css';
+
+/* Utility classes and animations */
+@import './utilities.css';

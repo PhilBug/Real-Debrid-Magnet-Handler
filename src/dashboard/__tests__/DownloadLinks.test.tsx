@@ -85,14 +85,8 @@ describe('DownloadLinks', () => {
       expect(countElement).toHaveClass('download-links-count')
     })
 
-    it('does not show copy button when onCopyLink is not provided', () => {
-      render(<DownloadLinks links={mockLinks} onLinkClick={mockOnLinkClick} />)
-
-      expect(screen.queryByLabelText(/Copy/)).not.toBeInTheDocument()
-    })
-
-    it('shows copy button when onCopyLink is provided', () => {
-      render(<DownloadLinks links={mockLinks} onCopyLink={mockOnCopyLink} />)
+    it('shows copy button for each link', () => {
+      render(<DownloadLinks links={mockLinks} />)
 
       expect(screen.getByLabelText('Copy movie.mkv')).toBeInTheDocument()
       expect(screen.getByLabelText('Copy subtitle.srt')).toBeInTheDocument()
@@ -104,7 +98,7 @@ describe('DownloadLinks', () => {
     it('calls onLinkClick when provided', () => {
       render(<DownloadLinks links={mockLinks} onLinkClick={mockOnLinkClick} />)
 
-      const firstLink = screen.getByText('movie.mkv').closest('button')
+      const firstLink = screen.getByText('movie.mkv').closest('.download-link-button')
       fireEvent.click(firstLink!)
 
       expect(mockOnLinkClick).toHaveBeenCalledWith(mockLinks[0])
@@ -113,7 +107,7 @@ describe('DownloadLinks', () => {
     it('opens link in new tab when onLinkClick is not provided', () => {
       render(<DownloadLinks links={mockLinks} />)
 
-      const firstLink = screen.getByText('movie.mkv').closest('button')
+      const firstLink = screen.getByText('movie.mkv').closest('.download-link-button')
       fireEvent.click(firstLink!)
 
       expect(window.open).toHaveBeenCalledWith(mockLinks[0].url, '_blank', 'noopener,noreferrer')
@@ -122,7 +116,7 @@ describe('DownloadLinks', () => {
     it('shows selection state after click', () => {
       render(<DownloadLinks links={mockLinks} />)
 
-      const firstLink = screen.getByText('movie.mkv').closest('button')
+      const firstLink = screen.getByText('movie.mkv').closest('.download-link-button')
       fireEvent.click(firstLink!)
 
       expect(firstLink).toHaveClass('download-link-button-selected')
@@ -131,8 +125,8 @@ describe('DownloadLinks', () => {
     it('updates selection state when different link clicked', () => {
       render(<DownloadLinks links={mockLinks} />)
 
-      const firstLink = screen.getByText('movie.mkv').closest('button')
-      const secondLink = screen.getByText('subtitle.srt').closest('button')
+      const firstLink = screen.getByText('movie.mkv').closest('.download-link-button')
+      const secondLink = screen.getByText('subtitle.srt').closest('.download-link-button')
 
       fireEvent.click(firstLink!)
       expect(firstLink).toHaveClass('download-link-button-selected')
@@ -316,7 +310,7 @@ describe('DownloadLinks', () => {
     it('has proper title attribute on link buttons', () => {
       render(<DownloadLinks links={mockLinks} />)
 
-      const linkButton = screen.getByText('movie.mkv').closest('button')
+      const linkButton = screen.getByText('movie.mkv').closest('.download-link-button')
       expect(linkButton).toHaveAttribute('title', 'movie.mkv')
     })
 

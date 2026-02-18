@@ -46,46 +46,39 @@ describe('TorrentCard', () => {
       expect(screen.getByText('Processing')).toBeInTheDocument()
     })
 
-    it('shows correct status icon for processing', () => {
+    it('shows correct status badge for processing', () => {
       const torrent = createMockTorrent({ status: 'processing' })
       render(<TorrentCard torrent={torrent} />)
 
-      expect(screen.getByText('⏳')).toBeInTheDocument()
+      expect(screen.getByText('Processing')).toBeInTheDocument()
     })
 
-    it('shows correct status icon for ready', () => {
+    it('shows correct status badge for ready', () => {
       const torrent = createMockTorrent({ status: 'ready' })
       render(<TorrentCard torrent={torrent} />)
 
-      expect(screen.getByText('✅')).toBeInTheDocument()
+      expect(screen.getByText('Ready')).toBeInTheDocument()
     })
 
-    it('shows correct status icon for error', () => {
+    it('shows correct status badge for error', () => {
       const torrent = createMockTorrent({ status: 'error' })
       render(<TorrentCard torrent={torrent} />)
 
-      expect(screen.getByText('❌')).toBeInTheDocument()
+      expect(screen.getByText('Error')).toBeInTheDocument()
     })
 
-    it('shows correct status icon for timeout', () => {
+    it('shows correct status badge for timeout', () => {
       const torrent = createMockTorrent({ status: 'timeout' })
       render(<TorrentCard torrent={torrent} />)
 
-      expect(screen.getByText('⏱️')).toBeInTheDocument()
+      expect(screen.getByText('Timeout')).toBeInTheDocument()
     })
 
-    it('shows correct status icon for selecting_files', () => {
+    it('shows correct status badge for selecting_files', () => {
       const torrent = createMockTorrent({ status: 'selecting_files' })
       render(<TorrentCard torrent={torrent} />)
 
-      expect(screen.getByText('📋')).toBeInTheDocument()
-    })
-
-    it('shows default icon for unknown status', () => {
-      const torrent = createMockTorrent({ status: 'unknown' as any })
-      render(<TorrentCard torrent={torrent} />)
-
-      expect(screen.getByText('❓')).toBeInTheDocument()
+      expect(screen.getByText('Selecting Files')).toBeInTheDocument()
     })
 
     it('shows default status text for unknown status', () => {
@@ -209,21 +202,21 @@ describe('TorrentCard', () => {
       const torrent = createMockTorrent({ status: 'error' })
       render(<TorrentCard torrent={torrent} onRetry={mockOnRetry} />)
 
-      expect(screen.getByText('🔄 Retry')).toBeInTheDocument()
+      expect(screen.getByText('Retry')).toBeInTheDocument()
     })
 
     it('shows retry button for timeout status', () => {
       const torrent = createMockTorrent({ status: 'timeout' })
       render(<TorrentCard torrent={torrent} onRetry={mockOnRetry} />)
 
-      expect(screen.getByText('🔄 Retry')).toBeInTheDocument()
+      expect(screen.getByText('Retry')).toBeInTheDocument()
     })
 
     it('does not show retry button for processing status', () => {
       const torrent = createMockTorrent({ status: 'processing' })
       render(<TorrentCard torrent={torrent} onRetry={mockOnRetry} />)
 
-      expect(screen.queryByText('🔄 Retry')).not.toBeInTheDocument()
+      expect(screen.queryByText('Retry')).not.toBeInTheDocument()
     })
 
     it('shows copy links button when links are available', () => {
@@ -239,28 +232,28 @@ describe('TorrentCard', () => {
       })
       render(<TorrentCard torrent={torrent} onCopyLinks={mockOnCopyLinks} />)
 
-      expect(screen.getByText('📋 Copy Links')).toBeInTheDocument()
+      expect(screen.getByText('Copy Links')).toBeInTheDocument()
     })
 
     it('does not show copy links button when no links', () => {
       const torrent = createMockTorrent({ status: 'processing' })
       render(<TorrentCard torrent={torrent} onCopyLinks={mockOnCopyLinks} />)
 
-      expect(screen.queryByText('📋 Copy Links')).not.toBeInTheDocument()
+      expect(screen.queryByText('Copy Links')).not.toBeInTheDocument()
     })
 
     it('shows remove button when onRemove provided', () => {
       const torrent = createMockTorrent()
       render(<TorrentCard torrent={torrent} onRemove={mockOnRemove} />)
 
-      expect(screen.getByText('🗑️ Remove')).toBeInTheDocument()
+      expect(screen.getByText('Remove')).toBeInTheDocument()
     })
 
     it('does not show remove button when onRemove not provided', () => {
       const torrent = createMockTorrent()
       render(<TorrentCard torrent={torrent} />)
 
-      expect(screen.queryByText('🗑️ Remove')).not.toBeInTheDocument()
+      expect(screen.queryByText('Remove')).not.toBeInTheDocument()
     })
   })
 
@@ -269,7 +262,7 @@ describe('TorrentCard', () => {
       const torrent = createMockTorrent({ status: 'error' })
       render(<TorrentCard torrent={torrent} onRetry={mockOnRetry} />)
 
-      const retryButton = screen.getByText('🔄 Retry')
+      const retryButton = screen.getByText('Retry')
       fireEvent.click(retryButton)
 
       expect(mockOnRetry).toHaveBeenCalledWith('torrent-1')
@@ -279,10 +272,10 @@ describe('TorrentCard', () => {
       const torrent = createMockTorrent()
       render(<TorrentCard torrent={torrent} onRemove={mockOnRemove} />)
 
-      const removeButton = screen.getByText('🗑️ Remove')
+      const removeButton = screen.getByText('Remove')
       fireEvent.click(removeButton)
 
-      expect(mockOnRemove).toHaveBeenCalledWith('torrent-1')
+      expect(mockOnRemove).toHaveBeenCalledWith(torrent)
     })
 
     it('calls onCopyLinks with torrent id when copy links clicked', () => {
@@ -298,7 +291,7 @@ describe('TorrentCard', () => {
       })
       render(<TorrentCard torrent={torrent} onCopyLinks={mockOnCopyLinks} />)
 
-      const copyButton = screen.getByText('📋 Copy Links')
+      const copyButton = screen.getByText('Copy Links')
       fireEvent.click(copyButton)
 
       expect(mockOnCopyLinks).toHaveBeenCalledWith('torrent-1')
@@ -342,7 +335,7 @@ describe('TorrentCard', () => {
       })
       render(<TorrentCard torrent={torrent} />)
 
-      const linkButton = screen.getByText('movie.mkv').closest('button')
+      const linkButton = screen.getByText('movie.mkv').closest('.download-link-button')
       fireEvent.click(linkButton!)
 
       expect(window.open).toHaveBeenCalledWith(
@@ -441,6 +434,85 @@ describe('TorrentCard', () => {
 
       const filenameElement = screen.getByText('Test Movie 2024.mkv')
       expect(filenameElement).toHaveAttribute('title', 'Test Movie 2024.mkv')
+    })
+  })
+
+  describe('converted URL section', () => {
+    it('shows converted URL section when downloadUrl is available', () => {
+      const torrent = createMockTorrent({
+        status: 'ready',
+        downloadUrl: 'https://example.com/download/file.mkv',
+      })
+      render(<TorrentCard torrent={torrent} />)
+
+      expect(screen.getByText('Converted URL')).toBeInTheDocument()
+      expect(screen.getByText('https://example.com/download/file.mkv')).toBeInTheDocument()
+    })
+
+    it('does not show converted URL section when downloadUrl is null', () => {
+      const torrent = createMockTorrent({ status: 'processing', downloadUrl: null })
+      render(<TorrentCard torrent={torrent} />)
+
+      expect(screen.queryByText('Converted URL')).not.toBeInTheDocument()
+    })
+
+    it('shows copy button with tooltip feedback', async () => {
+      const torrent = createMockTorrent({
+        status: 'ready',
+        downloadUrl: 'https://example.com/download/file.mkv',
+      })
+      render(<TorrentCard torrent={torrent} />)
+
+      const copyButton = screen.getByLabelText('Copy download URL')
+      fireEvent.click(copyButton)
+
+      // Check clipboard was called
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        'https://example.com/download/file.mkv'
+      )
+
+      // Check tooltip appears
+      expect(screen.getByText('Copied!')).toBeInTheDocument()
+    })
+
+    it('shows download button with tooltip feedback', async () => {
+      const torrent = createMockTorrent({
+        status: 'ready',
+        downloadUrl: 'https://example.com/download/file.mkv',
+      })
+      render(<TorrentCard torrent={torrent} />)
+
+      const downloadButton = screen.getByLabelText('Download file')
+      fireEvent.click(downloadButton)
+
+      // Check tooltip appears
+      expect(screen.getByText('Downloading...')).toBeInTheDocument()
+    })
+
+    it('tooltip auto-dismisses after 2 seconds', async () => {
+      vi.useFakeTimers()
+
+      const torrent = createMockTorrent({
+        status: 'ready',
+        downloadUrl: 'https://example.com/download/file.mkv',
+      })
+      render(<TorrentCard torrent={torrent} />)
+
+      const copyButton = screen.getByLabelText('Copy download URL')
+      fireEvent.click(copyButton)
+
+      // Tooltip should be visible
+      expect(screen.getByText('Copied!')).toBeInTheDocument()
+
+      // Fast-forward 2 seconds and allow React to update
+      vi.advanceTimersByTime(2100)
+
+      vi.useRealTimers()
+
+      // Wait for the state update to propagate
+      await vi.waitFor(() => {
+        expect(screen.queryByText('Copied!')).not.toBeInTheDocument()
+      })
     })
   })
 })
