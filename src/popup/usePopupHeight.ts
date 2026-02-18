@@ -78,14 +78,8 @@ export function usePopupHeight(
       requestAnimationFrame(updatePopupHeight)
     })
 
-    // Observe the torrent list container
+    // Observe the torrent list container directly (simpler and handles dynamic content)
     resizeObserverRef.current.observe(torrentListRef.current)
-
-    // Also observe child elements (torrent cards) for size changes
-    const childElements = torrentListRef.current.children
-    Array.from(childElements).forEach(child => {
-      resizeObserverRef.current?.observe(child)
-    })
 
     // Initial calculation after a brief delay to ensure DOM is ready
     const timeoutId = setTimeout(updatePopupHeight, 50)

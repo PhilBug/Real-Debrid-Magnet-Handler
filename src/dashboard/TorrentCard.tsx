@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import type { ExtendedTorrentItem } from '../utils/types'
 import { Badge, BadgeVariant } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
@@ -124,12 +124,25 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
   const [copyTooltip, setCopyTooltip] = useState(false)
   const [downloadTooltip, setDownloadTooltip] = useState(false)
 
+  // Refs for timeout cleanup to prevent memory leaks
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const downloadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
+      if (downloadTimeoutRef.current) clearTimeout(downloadTimeoutRef.current)
+    }
+  }, [])
+
   // Handle copy with tooltip feedback
   const handleCopyDownloadUrl = useCallback(() => {
     if (torrent.downloadUrl) {
       navigator.clipboard.writeText(torrent.downloadUrl)
       setCopyTooltip(true)
-      setTimeout(() => setCopyTooltip(false), 2000)
+      const timeoutId = setTimeout(() => setCopyTooltip(false), 2000)
+      copyTimeoutRef.current = timeoutId
     }
   }, [torrent.downloadUrl])
 
@@ -144,7 +157,8 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      setTimeout(() => setDownloadTooltip(false), 2000)
+      const timeoutId = setTimeout(() => setDownloadTooltip(false), 2000)
+      downloadTimeoutRef.current = timeoutId
     }
   }, [torrent.downloadUrl, torrent.filename])
 

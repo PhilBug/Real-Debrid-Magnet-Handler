@@ -82,6 +82,7 @@ export function DashboardFileSelector({
   }
 
   const handleConfirm = () => {
+    // If no files are explicitly selected, treat this as "all files" (empty selection = all)
     if (selectedIds.size === 0) {
       onConfirm(torrentId, 'all')
     } else {
