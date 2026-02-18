@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import type { ExtendedTorrentItem } from '../utils/types'
 import { Badge, BadgeVariant } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
@@ -9,8 +9,9 @@ import { DownloadLinks } from './DownloadLinks'
 interface TorrentCardProps {
   torrent: ExtendedTorrentItem
   onRetry?: (torrentId: string) => void
-  onRemove?: (torrentId: string) => void
+  onRemove?: (torrent: ExtendedTorrentItem) => void
   onCopyLinks?: (torrentId: string) => void
+  onSelectFiles?: (torrentId: string) => void
 }
 
 /**
@@ -111,10 +112,55 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
   onRetry,
   onRemove,
   onCopyLinks,
+  onSelectFiles,
 }) => {
   const canRetry = torrent.status === 'error' || torrent.status === 'timeout'
+  const canSelectFiles = torrent.status === 'selecting_files'
   const hasProgress = torrent.progress && torrent.progress.progress > 0
   const hasLinks = torrent.links && torrent.links.length > 0
+  const hasDownloadUrl = torrent.status === 'ready' && torrent.downloadUrl
+
+  // Tooltip state for copy and download buttons
+  const [copyTooltip, setCopyTooltip] = useState(false)
+  const [downloadTooltip, setDownloadTooltip] = useState(false)
+
+  // Refs for timeout cleanup to prevent memory leaks
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const downloadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
+      if (downloadTimeoutRef.current) clearTimeout(downloadTimeoutRef.current)
+    }
+  }, [])
+
+  // Handle copy with tooltip feedback
+  const handleCopyDownloadUrl = useCallback(() => {
+    if (torrent.downloadUrl) {
+      navigator.clipboard.writeText(torrent.downloadUrl)
+      setCopyTooltip(true)
+      const timeoutId = setTimeout(() => setCopyTooltip(false), 2000)
+      copyTimeoutRef.current = timeoutId
+    }
+  }, [torrent.downloadUrl])
+
+  // Handle download with tooltip feedback
+  const handleDownload = useCallback(() => {
+    if (torrent.downloadUrl) {
+      setDownloadTooltip(true)
+      // Create a temporary anchor to trigger download
+      const link = document.createElement('a')
+      link.href = torrent.downloadUrl
+      link.download = torrent.filename || 'download'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      const timeoutId = setTimeout(() => setDownloadTooltip(false), 2000)
+      downloadTimeoutRef.current = timeoutId
+    }
+  }, [torrent.downloadUrl, torrent.filename])
 
   return (
     <div className="torrent-card">
@@ -168,6 +214,44 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
         </div>
       )}
 
+      {/* Converted URL Section */}
+      {hasDownloadUrl && (
+        <div className="torrent-converted-url-section">
+          <div className="torrent-converted-url-label">Converted URL</div>
+          <div className="torrent-converted-url-container">
+            <span className="torrent-converted-url" title={torrent.downloadUrl ?? undefined}>
+              {torrent.downloadUrl}
+            </span>
+            <div className="torrent-converted-url-actions">
+              <div className="torrent-action-button-wrapper">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyDownloadUrl}
+                  aria-label="Copy download URL"
+                  leftIcon={<Icon name="copy" size="sm" />}
+                >
+                  Copy
+                </Button>
+                {copyTooltip && <span className="torrent-action-tooltip">Copied!</span>}
+              </div>
+              <div className="torrent-action-button-wrapper">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDownload}
+                  aria-label="Download file"
+                  leftIcon={<Icon name="download" size="sm" />}
+                >
+                  Download
+                </Button>
+                {downloadTooltip && <span className="torrent-action-tooltip">Downloading...</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Links Section */}
       {hasLinks && (
         <div className="torrent-links-section">
@@ -182,6 +266,17 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
 
       {/* Card Actions */}
       <div className="torrent-card-actions">
+        {canSelectFiles && onSelectFiles && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => onSelectFiles(torrent.id)}
+            aria-label={`Select files for ${torrent.filename}`}
+            leftIcon={<Icon name="file" size="sm" />}
+          >
+            Choose Files
+          </Button>
+        )}
         {canRetry && onRetry && (
           <Button
             variant="secondary"
@@ -208,7 +303,7 @@ export const TorrentCard: React.FC<TorrentCardProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onRemove(torrent.id)}
+            onClick={() => onRemove(torrent)}
             aria-label={`Remove ${torrent.filename}`}
             leftIcon={<Icon name="trash" size="sm" />}
           >

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createRoot } from 'react-dom/client'
 import browser from 'webextension-polyfill'
 import { storage } from '../utils/storage'
 import { FileSelector } from './FileSelector'
+import { usePopupHeight } from './usePopupHeight'
 import type { TorrentItem, RdTorrentInfo } from '../utils/types'
 import { Button, Input, Badge, Icon, ProgressBar } from '../components/common'
 
@@ -36,6 +37,24 @@ function Popup() {
   const [torrents, setTorrents] = useState<TorrentItem[]>([])
   const [selectingFilesTorrentId, setSelectingFilesTorrentId] = useState<string | null>(null)
   const [torrentInfoCache, setTorrentInfoCache] = useState<Map<string, RdTorrentInfo>>(new Map())
+  const [visibleTorrentsCount, setVisibleTorrentsCount] = useState(5)
+  const [downloadTooltip, setDownloadTooltip] = useState<string | null>(null)
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false)
+  const torrentListRef = useRef<HTMLDivElement>(null)
+  const downloadTooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Enable dynamic popup height calculation based on content
+  usePopupHeight(torrentListRef, true)
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (downloadTooltipTimeoutRef.current) {
+        clearTimeout(downloadTooltipTimeoutRef.current)
+      }
+    }
+  }, [])
+
   // Initialize dark mode from storage
   useEffect(() => {
     const initDarkMode = async () => {
@@ -54,6 +73,7 @@ function Popup() {
     checkToken()
     loadTorrents()
     loadPendingMagnet()
+    loadVisibleTorrentsCount()
 
     // Subscribe to torrent list changes
     const listener = (changes: { [key: string]: { newValue?: unknown } }, areaName: string) => {
@@ -79,6 +99,15 @@ function Popup() {
   const checkToken = async () => {
     const settings = await storage.getSettings()
     setHasToken(!!settings.apiToken)
+  }
+
+  const loadVisibleTorrentsCount = async () => {
+    try {
+      const settings = await storage.getSettings()
+      setVisibleTorrentsCount(settings.visibleTorrentsCount || 5)
+    } catch (e) {
+      console.error('Failed to load visibleTorrentsCount', e)
+    }
   }
 
   const loadPendingMagnet = async () => {
@@ -139,6 +168,18 @@ function Popup() {
     })
   }
 
+  const handleDownload = useCallback((torrentId: string, downloadUrl: string, filename: string) => {
+    setDownloadTooltip(torrentId)
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = filename || 'download'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    const timeoutId = setTimeout(() => setDownloadTooltip(null), 2000)
+    downloadTooltipTimeoutRef.current = timeoutId
+  }, [])
+
   const handleRemove = async (torrentId: string) => {
     await storage.removeTorrent(torrentId)
   }
@@ -151,6 +192,20 @@ function Popup() {
     })
     setSelectingFilesTorrentId(null)
   }
+
+  const handleClearAll = useCallback(async () => {
+    try {
+      const completedTorrents = torrents.filter(t => t.status === 'ready')
+      for (const torrent of completedTorrents) {
+        await storage.removeTorrent(torrent.id)
+      }
+      setShowClearAllConfirm(false)
+    } catch (error) {
+      console.error('Failed to clear torrents:', error)
+    }
+  }, [torrents])
+
+  const completedCount = torrents.filter(t => t.status === 'ready').length
 
   const openFileSelector = async (torrentId: string) => {
     setSelectingFilesTorrentId(torrentId)
@@ -200,7 +255,7 @@ function Popup() {
   }
 
   return (
-    <div className="popup">
+    <div className="popup" data-visible-torrents={visibleTorrentsCount}>
       {/* Header */}
       <header className="popup__header">
         <h1 className="popup__title">
@@ -209,7 +264,7 @@ function Popup() {
         </h1>
         <div className="popup__header-actions">
           <Button variant="ghost" size="sm" onClick={openSettings} aria-label="Open settings">
-            <Icon name="sun" size="md" aria-label="Settings" />
+            <Icon name="gear" size="md" aria-label="Settings" />
           </Button>
         </div>
       </header>
@@ -234,14 +289,6 @@ function Popup() {
               disabled={!hasToken}
             >
               {loading ? 'Converting...' : 'Convert'}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={openSettings}
-              aria-label="Open settings"
-            >
-              <Icon name="sun" size="md" />
             </Button>
           </div>
         </form>
@@ -278,7 +325,7 @@ function Popup() {
       )}
 
       {/* Torrent List */}
-      <div className="popup__torrent-list">
+      <div ref={torrentListRef} className="popup__torrent-list">
         {torrents.length === 0 ? (
           <div className="popup__empty-state">
             <div className="popup__empty-icon">
@@ -351,16 +398,33 @@ function Popup() {
                       </Button>
                     )}
                     {torrent.status === 'ready' && torrent.downloadUrl && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(torrent.downloadUrl!)
-                        }}
-                        leftIcon={<Icon name="copy" size="sm" />}
-                      >
-                        Copy Link
-                      </Button>
+                      <>
+                        <div className="popup__torrent-action-wrapper">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleDownload(torrent.id, torrent.downloadUrl!, torrent.filename)
+                            }
+                            aria-label="Download file"
+                          >
+                            Download
+                          </Button>
+                          {downloadTooltip === torrent.id && (
+                            <span className="popup__torrent-action-tooltip">Downloading...</span>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(torrent.downloadUrl!)
+                          }}
+                          leftIcon={<Icon name="copy" size="sm" />}
+                        >
+                          Copy Link
+                        </Button>
+                      </>
                     )}
                     {torrent.status === 'selecting_files' && (
                       <Button
@@ -387,17 +451,29 @@ function Popup() {
             </div>
           ))
         )}
+      </div>
 
-        {/* Footer link to dashboard */}
-        {torrents.length > 0 && (
-          <div className="popup__footer">
+      {/* Footer link to dashboard - outside torrent list so it sticks to bottom */}
+      {torrents.length > 0 && (
+        <div className="popup__footer">
+          <div className="popup__footer-actions">
+            {completedCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowClearAllConfirm(true)}
+                leftIcon={<Icon name="trash" size="sm" />}
+              >
+                Clear {completedCount} Completed
+              </Button>
+            )}
             <button type="button" onClick={openDashboard} className="popup__footer-link">
               Open Full Dashboard
               <Icon name="external-link" size="sm" />
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* File Selector Modal */}
       {selectingFilesTorrentId && torrentInfoCache.get(selectingFilesTorrentId) && (
@@ -410,6 +486,26 @@ function Popup() {
               }
               onCancel={closeFileSelector}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Clear All Confirmation Modal */}
+      {showClearAllConfirm && (
+        <div className="popup__confirm-overlay">
+          <div className="popup__confirm-dialog">
+            <h3 className="popup__confirm-title">Clear All Completed?</h3>
+            <p className="popup__confirm-message">
+              Remove {completedCount} completed torrent{completedCount > 1 ? 's' : ''}?
+            </p>
+            <div className="popup__confirm-actions">
+              <Button variant="secondary" size="sm" onClick={() => setShowClearAllConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleClearAll}>
+                Clear All
+              </Button>
+            </div>
           </div>
         </div>
       )}
