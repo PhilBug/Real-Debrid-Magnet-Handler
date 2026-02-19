@@ -1,16 +1,31 @@
+/**
+ * Options Page - Real-Debrid Magnet Handler
+ *
+ * Settings page for configuring the extension using the
+ * Industrial Terminal design system.
+ */
+
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { storage } from '../utils/storage'
 import { rdAPI } from '../utils/realdebrid-api'
-import '../styles/main.css'
+import { Button } from '../components/common/Button'
+import { Input } from '../components/common/Input'
+import { Icon } from '../components/common/Icon'
+import './options.css'
 
+/**
+ * Options component for managing extension settings.
+ */
 function Options() {
   const [apiToken, setApiToken] = useState('')
   const [maxListSize, setMaxListSize] = useState(10)
   const [contextMenuEnabled, setContextMenuEnabled] = useState(false)
   const [alwaysSaveAllFiles, setAlwaysSaveAllFiles] = useState(false)
+  const [visibleTorrentsCount, setVisibleTorrentsCount] = useState(5)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [showToken, setShowToken] = useState(false)
 
   useEffect(() => {
     loadSettings()
@@ -22,6 +37,7 @@ function Options() {
     setMaxListSize(settings.maxListSize)
     setContextMenuEnabled(settings.contextMenuEnabled)
     setAlwaysSaveAllFiles(settings.alwaysSaveAllFiles)
+    setVisibleTorrentsCount(settings.visibleTorrentsCount)
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -44,6 +60,7 @@ function Options() {
         maxListSize,
         contextMenuEnabled,
         alwaysSaveAllFiles,
+        visibleTorrentsCount,
       })
 
       setMessage('Settings saved successfully!')
@@ -54,102 +71,150 @@ function Options() {
     }
   }
 
+  const handleCancel = () => {
+    loadSettings()
+    setMessage('')
+  }
+
   return (
-    <div className="min-w-[500px] max-w-2xl mx-auto p-8 bg-white">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900">Settings</h1>
+    <div className="options">
+      <header className="options__header">
+        <span className="options__prompt">rd://</span>
+        <h1 className="options__title">REAL-DEBRID HANDLER - Settings</h1>
+      </header>
 
-      <form onSubmit={handleSave} className="space-y-6">
-        <div>
-          <label htmlFor="apiToken" className="block text-sm font-medium mb-2 text-gray-700">
-            Real-Debrid API Token
-          </label>
-          <input
-            id="apiToken"
-            type="password"
-            value={apiToken}
-            onChange={e => setApiToken(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter your API token"
-            required
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Get your token at:{' '}
-            <a
-              href="https://real-debrid.com/apitoken"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline hover:text-blue-700"
+      <form onSubmit={handleSave}>
+        {/* API Configuration Section */}
+        <section className="options__section">
+          <h2 className="options__section-title">API Configuration</h2>
+
+          <div className="options__input-group">
+            <div className="options__token-input-wrapper">
+              <Input
+                id="apiToken"
+                type={showToken ? 'text' : 'password'}
+                label="API Token"
+                value={apiToken}
+                onChange={e => setApiToken(e.target.value)}
+                placeholder="Enter your API token"
+                required
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="md"
+                onClick={() => setShowToken(!showToken)}
+                aria-label={showToken ? 'Hide token' : 'Show token'}
+              >
+                <Icon name={showToken ? 'x' : 'check-circle'} size="sm" />
+              </Button>
+            </div>
+            <div className="options__helper-text">
+              Get your API token from:{' '}
+              <a
+                href="https://real-debrid.com/apitoken"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="options__external-link"
+              >
+                https://real-debrid.com/apitoken
+                <Icon name="external-link" size="sm" aria-label="Opens in new tab" />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Preferences Section */}
+        <section className="options__section">
+          <h2 className="options__section-title">Preferences</h2>
+
+          <div className="options__input-group">
+            <Input
+              id="maxListSize"
+              type="number"
+              label="Max items in list"
+              value={maxListSize}
+              onChange={e => setMaxListSize(parseInt(e.target.value) || 10)}
+              min="5"
+              max="50"
+              helperText="Number of torrents to keep in the list (5-50)"
+            />
+          </div>
+
+          <div className="options__input-group">
+            <label className="options__select-label" htmlFor="visibleTorrentsCount">
+              Visible torrents in popup
+            </label>
+            <select
+              id="visibleTorrentsCount"
+              className="options__select"
+              value={visibleTorrentsCount}
+              onChange={e => setVisibleTorrentsCount(parseInt(e.target.value))}
             >
-              https://real-debrid.com/apitoken
-            </a>
-          </p>
+              <option value={3}>3 torrents</option>
+              <option value={5}>5 torrents</option>
+              <option value={7}>7 torrents</option>
+              <option value={10}>10 torrents</option>
+            </select>
+            <div className="options__helper-text">
+              Number of torrents visible by default in the popup before scrolling
+            </div>
+          </div>
+
+          <div className="options__input-group">
+            <label className="options__checkbox">
+              <input
+                type="checkbox"
+                checked={contextMenuEnabled}
+                onChange={e => setContextMenuEnabled(e.target.checked)}
+                className="options__checkbox-input"
+              />
+              <div>
+                <span className="options__checkbox-label">Enable context menu integration</span>
+                <span className="options__checkbox-description">
+                  Add "Send to Real-Debrid" option when right-clicking magnet links
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <div className="options__input-group">
+            <label className="options__checkbox">
+              <input
+                type="checkbox"
+                checked={alwaysSaveAllFiles}
+                onChange={e => setAlwaysSaveAllFiles(e.target.checked)}
+                className="options__checkbox-input"
+              />
+              <div>
+                <span className="options__checkbox-label">Always save all files automatically</span>
+                <span className="options__checkbox-description">
+                  Automatically select all files in multi-file torrents (skip file selection UI)
+                </span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        {/* Action Buttons */}
+        <div className="options__button-group">
+          <Button type="button" variant="secondary" onClick={handleCancel} disabled={saving}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" loading={saving}>
+            Save Changes
+          </Button>
         </div>
 
-        <div>
-          <label htmlFor="maxListSize" className="block text-sm font-medium mb-2 text-gray-700">
-            Maximum List Size
-          </label>
-          <input
-            id="maxListSize"
-            type="number"
-            value={maxListSize}
-            onChange={e => setMaxListSize(parseInt(e.target.value) || 10)}
-            min="5"
-            max="50"
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Number of torrents to keep in the list (5-50)
-          </p>
-        </div>
-
-        <div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={contextMenuEnabled}
-              onChange={e => setContextMenuEnabled(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-            />
-            <span className="text-sm font-medium text-gray-700">Enable Context Menu</span>
-          </label>
-          <p className="text-xs text-gray-500 mt-1 ml-6">
-            Add "Send to Real-Debrid Magnet Handler" option when right-clicking magnet links
-          </p>
-        </div>
-
-        <div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={alwaysSaveAllFiles}
-              onChange={e => setAlwaysSaveAllFiles(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-            />
-            <span className="text-sm font-medium text-gray-700">Always Save All Files</span>
-          </label>
-          <p className="text-xs text-gray-500 mt-1 ml-6">
-            Automatically select all files in multi-file torrents (skip file selection UI)
-          </p>
-        </div>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full bg-blue-600 text-white p-3 rounded font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-          {saving ? 'Saving...' : 'Save Settings'}
-        </button>
-
+        {/* Status Message */}
         {message && (
           <div
-            className={`p-3 rounded ${
-              message.startsWith('Error')
-                ? 'bg-red-100 text-red-700 border border-red-300'
-                : 'bg-green-100 text-green-700 border border-green-300'
+            className={`options__message ${
+              message.startsWith('Error') ? 'options__message--error' : 'options__message--success'
             }`}
           >
-            {message}
+            <Icon name={message.startsWith('Error') ? 'x-circle' : 'check-circle'} size="sm" />
+            <span>{message}</span>
           </div>
         )}
       </form>

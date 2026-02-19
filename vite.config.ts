@@ -4,6 +4,9 @@ import webExtension from '@samrum/vite-plugin-web-extension'
 
 export default defineConfig({
   base: '',
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
+  },
   plugins: [
     tailwindcss() as any,
     webExtension({
@@ -44,6 +47,12 @@ export default defineConfig({
           '48': 'icons/icon-48.png',
           '128': 'icons/icon-128.png',
         },
+        web_accessible_resources: [
+          {
+            resources: ['src/dashboard/dashboard.html'],
+            matches: ['<all_urls>'],
+          },
+        ],
       },
     }) as any,
   ],
