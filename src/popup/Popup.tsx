@@ -407,6 +407,7 @@ function Popup() {
                               handleDownload(torrent.id, torrent.downloadUrl!, torrent.filename)
                             }
                             aria-label="Download file"
+                            leftIcon={<Icon name="download" size="sm" />}
                           >
                             Download
                           </Button>
