@@ -1,27 +1,15 @@
 # Development Commands
 
-## Project Initialization (When ready to start)
+## Development Workflow
 ```bash
-# Initialize Vite web extension
-npm init @samrum/vite-plugin-web-extension@latest
-# Select: Manifest V3, React, TypeScript
-
-# Install dependencies
-npm install axios webextension-polyfill tailwindcss
-npm install -D @types/webextension-polyfill web-ext
-
-# Initialize Tailwind
-npx tailwindcss init
-```
-
-## Development Workflow (Once initialized)
-```bash
-npm run dev      # Dev server with hot reload
-npm run preview  # Run extension in Firefox (separate terminal)
+npm run dev      # Dev server with hot reload - do not run unless asked by user
+npm run preview  # Run extension in Firefox (separate terminal) - do not run unless asked by user
 npm run build    # Production build
-npm run lint     # ESLint
-npm run format   # Prettier
+npm run lint     # Run TypeScript type check and ESLint
+npm run format   # Format with Prettier
+npm run test     # Run Vitest tests
 npm run package  # Build for distribution
+npm run precheck # Run lint, format, test, and build (useful before checking in)
 ```
 
 ## Git

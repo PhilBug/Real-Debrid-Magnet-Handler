@@ -72,6 +72,12 @@
       }
     ],
     [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false
+      }
+    ],
+    [
       "@semantic-release/exec",
       {
         "prepareCmd": "export NEXT_RELEASE_VERSION=${nextRelease.version} RELEASE_NOTES=\"${nextRelease.notes}\" && node scripts/update-version.cjs && node scripts/generate-amo-metadata.cjs && npm run build"
