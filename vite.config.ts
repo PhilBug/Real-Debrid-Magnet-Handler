@@ -13,7 +13,7 @@ export default defineConfig({
       manifest: {
         manifest_version: 3,
         name: 'Real-Debrid Magnet Handler',
-        version: '1.0.0',
+        version: '1.1.0',
         description: 'Convert magnet links to HTTP downloads via Real-Debrid',
         permissions: ['storage', 'alarms', 'contextMenus'],
         host_permissions: ['https://api.real-debrid.com/*'],
