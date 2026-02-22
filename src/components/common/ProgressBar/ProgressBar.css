@@ -48,10 +48,11 @@
 .progress {
   width: 100%;
   background: var(--surface-sunken);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-default);
+  border-radius: 0;
   overflow: hidden;
   box-sizing: border-box;
+  box-shadow: 2px 2px 0px var(--border-default);
 }
 
 /* ==========================================================================
@@ -59,15 +60,15 @@
    ========================================================================== */
 
 .progress--sm .progress {
-  height: 4px;
-}
-
-.progress--md .progress {
   height: 8px;
 }
 
+.progress--md .progress {
+  height: 16px;
+}
+
 .progress--lg .progress {
-  height: 12px;
+  height: 24px;
 }
 
 /* ==========================================================================
@@ -76,7 +77,7 @@
 
 .progress-bar {
   height: 100%;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   transition: width var(--duration-slow) var(--ease-out);
 }
 

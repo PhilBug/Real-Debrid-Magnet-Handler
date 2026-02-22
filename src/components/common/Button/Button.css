@@ -14,28 +14,28 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  font-family: var(--font-body);
-  font-weight: var(--font-medium);
+  font-family: var(--font-display);
+  font-weight: var(--font-bold);
   font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   line-height: 1;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
+  border-radius: 0;
+  border: 2px solid var(--border-default);
   cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+  transition: all 0.1s ease-out;
   white-space: nowrap;
   text-decoration: none;
   box-sizing: border-box;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
 }
 
 /* Focus visible state */
 .button:focus-visible {
   outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
+  outline-offset: 4px;
 }
 
 /* Remove default outline when using mouse */
@@ -45,12 +45,14 @@
 
 /* Active press effect */
 .button:active:not(:disabled):not(.button--loading) {
-  transform: scale(0.97);
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px var(--border-default);
 }
 
 /* Hover lift effect */
 .button:hover:not(:disabled):not(.button--loading) {
-  transform: translateY(-1px);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* ==========================================================================
@@ -83,65 +85,73 @@
 .button--primary {
   background: var(--accent-primary);
   color: var(--text-inverse);
-  border-color: var(--accent-primary);
+  border-color: var(--border-default);
 }
 
 .button--primary:hover:not(:disabled):not(.button--loading) {
-  background: var(--accent-primary-hover);
-  border-color: var(--accent-primary-hover);
-  box-shadow: var(--shadow-glow);
+  background: var(--text-primary);
+  color: var(--surface-base);
+  border-color: var(--border-default);
 }
 
 .button--primary:active:not(:disabled):not(.button--loading) {
-  background: var(--accent-primary-hover);
+  background: var(--text-primary);
 }
 
 /* Secondary Button */
 .button--secondary {
-  background: transparent;
+  background: var(--surface-elevated);
   color: var(--text-primary);
   border-color: var(--border-default);
 }
 
 .button--secondary:hover:not(:disabled):not(.button--loading) {
-  background: var(--surface-sunken);
-  border-color: var(--border-strong);
+  background: var(--text-primary);
+  color: var(--surface-base);
+  border-color: var(--border-default);
 }
 
 .button--secondary:active:not(:disabled):not(.button--loading) {
-  background: var(--surface-sunken);
+  background: var(--text-primary);
 }
 
 /* Ghost Button */
 .button--ghost {
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   border-color: transparent;
+  box-shadow: none;
 }
 
 .button--ghost:hover:not(:disabled):not(.button--loading) {
-  background: var(--surface-sunken);
-  color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--surface-base);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+  transform: translate(-2px, -2px);
 }
 
 .button--ghost:active:not(:disabled):not(.button--loading) {
-  background: var(--surface-sunken);
+  background: var(--text-primary);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 /* Danger Button */
 .button--danger {
   background: var(--status-error);
-  color: white;
-  border-color: var(--status-error);
+  color: var(--text-inverse);
+  border-color: var(--border-default);
 }
 
 .button--danger:hover:not(:disabled):not(.button--loading) {
-  filter: brightness(1.1);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  background: var(--text-primary);
+  color: var(--status-error);
+  border-color: var(--border-default);
 }
 
 .button--danger:active:not(:disabled):not(.button--loading) {
-  filter: brightness(1.05);
+  background: var(--text-primary);
 }
 
 /* ==========================================================================

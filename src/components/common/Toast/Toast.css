@@ -46,10 +46,10 @@
 
 .toast {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
+  border: 2px solid var(--border-default);
+  border-radius: 0;
   padding: var(--space-3) var(--space-4);
-  box-shadow: var(--shadow-md);
+  box-shadow: 4px 4px 0px var(--border-default);
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
@@ -65,7 +65,7 @@
 
 /* Success */
 .toast--success {
-  border-left: 3px solid var(--status-ready);
+  border-left: 4px solid var(--status-ready);
 }
 
 .toast--success .toast__icon {
@@ -74,7 +74,7 @@
 
 /* Error */
 .toast--error {
-  border-left: 3px solid var(--status-error);
+  border-left: 4px solid var(--status-error);
 }
 
 .toast--error .toast__icon {
@@ -83,7 +83,7 @@
 
 /* Warning */
 .toast--warning {
-  border-left: 3px solid var(--status-timeout);
+  border-left: 4px solid var(--status-timeout);
 }
 
 .toast--warning .toast__icon {
@@ -92,7 +92,7 @@
 
 /* Info */
 .toast--info {
-  border-left: 3px solid var(--status-info);
+  border-left: 4px solid var(--status-info);
 }
 
 .toast--info .toast__icon {
@@ -129,7 +129,7 @@
   padding: 0;
   background: transparent;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   color: var(--text-muted);
   cursor: pointer;
   transition:

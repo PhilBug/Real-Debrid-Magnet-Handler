@@ -37,9 +37,9 @@
 
 .modal {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--border-default);
+  border-radius: 0;
+  box-shadow: 8px 8px 0px var(--border-default);
   max-height: 90vh;
   max-width: calc(100vw - var(--space-8));
   overflow: hidden;
@@ -85,7 +85,7 @@
 
 .modal__header {
   padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 2px solid var(--border-default);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -95,11 +95,12 @@
 
 .modal__title {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
   color: var(--text-primary);
   margin: 0;
   line-height: var(--leading-tight);
+  text-transform: uppercase;
 }
 
 .modal__close {
@@ -147,7 +148,7 @@
 
 .modal__footer {
   padding: var(--space-4) var(--space-6);
-  border-top: 1px solid var(--border-default);
+  border-top: 2px solid var(--border-default);
   display: flex;
   gap: var(--space-3);
   justify-content: flex-end;
